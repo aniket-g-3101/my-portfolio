@@ -4,6 +4,7 @@ import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { useTheme } from "../../../context/ThemeContext";
 import PROFILE_PIC from "../../../assets/images/me.jpg";
 import { containerVariants, itemVariants } from "../../../utils/helper";
+import Resume from "../../../../public/Aniket_Gavali_Resume .pdf"
 
 const HeroSection = () => {
   const { isDarkMode } = useTheme();
@@ -225,9 +226,7 @@ const HeroSection = () => {
                 </motion.button>
 
                 <motion.a
-                  href={`${
-                    import.meta.env.BASE_URL
-                  }../../../../../../public/Aniket_Gavali_Resume .pdf`}
+                  href={Resume}
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{
@@ -336,9 +335,7 @@ const HeroSection = () => {
                   View Work
                 </motion.button>
                 <motion.a
-                  href={`${
-                    import.meta.env.BASE_URL
-                  }../../../../../../public/Aniket_Gavali_Resume .pdf`}
+                  href={Resume}
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{
