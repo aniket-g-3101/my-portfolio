@@ -225,7 +225,9 @@ const HeroSection = () => {
                 </motion.button>
 
                 <motion.a
-                  href="../../../../public/Aniket_Gavali_Resume .pdf"// 👈 Place your resume inside the public folder
+                  href={`${
+                    import.meta.env.BASE_URL
+                  }../../../../../../public/Aniket_Gavali_Resume .pdf`}
                   target="_blank"
                   rel="noopener noreferrer"
                   whileHover={{
@@ -334,9 +336,11 @@ const HeroSection = () => {
                   View Work
                 </motion.button>
                 <motion.a
-                   href="../../../../public/Aniket_Gavali_Resume .pdf" // relative path
-  target="_blank"
-  rel="noopener noreferrer"
+                  href={`${
+                    import.meta.env.BASE_URL
+                  }../../../../../../public/Aniket_Gavali_Resume .pdf`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   whileHover={{
                     y: -2,
                     boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
