@@ -52,24 +52,24 @@ export const STATS = [
 
 
 // ===================== CERTIFICATES =====================
-import CERT_1 from "../assets/certificates/oracle.png";
-import CERT_2 from "../assets/certificates/AWS-1.png";
-import CERT_3 from "../assets/certificates/Simpli-Learn-1.png";
-import CERT_4 from "../assets/certificates/AWS-3.png";
-import CERT_5 from "../assets/certificates/Forage-DV.png";
-import CERT_6 from "../assets/certificates/edurika.png";
-import CERT_7 from "../assets/certificates/AWS-2.png";
-import CERT_8 from "../assets/certificates/HackerRank-CSS.png";
-import CERT_9 from "../assets/certificates/HackerRank-Frontend.png";
-import CERT_10 from "../assets/certificates/HP-1.png";
-import CERT_11 from "../assets/certificates/HP-2.png";
-import CERT_12 from "../assets/certificates/Knowledge-Gate.png";
-import CERT_13 from "../assets/certificates/AI.png";
-import CERT_14 from "../assets/certificates/powerBi.png";
-import CERT_15 from "../assets/certificates/be10x.png";
-import CERT_16 from "../assets/certificates/Simpli-Learn-2.png";
-import CERT_17 from "../assets/certificates/skyskill.png";
-import CERT_18 from "../assets/certificates/Unified-Mentor.png";
+import CERT_1 from "../assets/Certificates/oracle.png";
+import CERT_2 from "../assets/Certificates/AWS-1.png";
+import CERT_3 from "../assets/Certificates/Simpli-Learn-1.png";
+import CERT_4 from "../assets/Certificates/AWS-3.png";
+import CERT_5 from "../assets/Certificates/Forage-DV.png";
+import CERT_6 from "../assets/Certificates/edurika.png";
+import CERT_7 from "../assets/Certificates/AWS-2.png";
+import CERT_8 from "../assets/Certificates/HackerRank-CSS.png";
+import CERT_9 from "../assets/Certificates/HackerRank-Frontend.png";
+import CERT_10 from "../assets/Certificates/HP-1.png";
+import CERT_11 from "../assets/Certificates/HP-2.png";
+import CERT_12 from "../assets/Certificates/Knowledge-Gate.png";
+import CERT_13 from "../assets/Certificates/AI.png";
+import CERT_14 from "../assets/Certificates/powerBi.png";
+import CERT_15 from "../assets/Certificates/be10x.png";
+import CERT_16 from "../assets/Certificates/Simpli-Learn-2.png";
+import CERT_17 from "../assets/Certificates/skyskill.png";
+import CERT_18 from "../assets/Certificates/Unified-Mentor.png";
 // …add more as needed!
 
 export const CERTIFICATES = [
