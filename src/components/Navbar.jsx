@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Code2, Sun, Moon, X } from "lucide-react";
+import { Code2, Sun, Moon, X, Menu } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 
 const Navbar = () => {
@@ -176,7 +176,7 @@ const Navbar = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => toggleDarkMode(isDarkMode ? "light" : "dark")}
-            className={`p-2 rounded-full transition-colors ${
+            className={`p-2 rounded-full cursor-pointer transition-colors ${
               isDarkMode
                 ? "text-gray-400 hover:text-white hover:bg-gray-800"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
@@ -188,7 +188,7 @@ const Navbar = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={`p-2 rounded-full transition-colors ${
+            className={`p-2 cursor-pointer rounded-full transition-colors ${
               isDarkMode
                 ? "text-gray-400 hover:text-white hover:bg-gray-800"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
@@ -197,7 +197,7 @@ const Navbar = () => {
             {isMenuOpen ? (
               <X size={22} />
             ) : (
-              <Code2 size={22} />
+              <Menu size={22} />
             )}
           </motion.button>
         </div>

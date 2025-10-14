@@ -4,7 +4,7 @@ import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { useTheme } from "../../../context/ThemeContext";
 import PROFILE_PIC from "../../../assets/images/me.jpg";
 import { containerVariants, itemVariants } from "../../../utils/helper";
-import Resume from "../../../../public/Aniket_Gavali_Resume .pdf"
+import Resume from "../../../../public/Aniket_Gavali_Resume.pdf"
 
 const HeroSection = () => {
   const { isDarkMode } = useTheme();

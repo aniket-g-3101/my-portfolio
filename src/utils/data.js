@@ -191,7 +191,7 @@ export const PROJECTS = [
     tags: ["HTML 5", "CSS", "JavaScript","WebScoket","ExpressJs"],
     liveUrl: "https://chattrexx.onrender.com/",
     githubUrl: "https://github.com/aniket-g-3101/Chat_Application",
-    featured: false,
+    featured: true,
     category: "Full Stack",
   },
   {
@@ -215,7 +215,7 @@ export const PROJECTS = [
     tags: ["HTML 5", "CSS"],
     liveUrl: "https://aniketz-profile.vercel.app/",
     githubUrl: "https://github.com/aniket-g-3101/profile-card",
-    featured: true,
+    featured: false,
     category: "Web App",
   },
    {
@@ -227,7 +227,7 @@ export const PROJECTS = [
     tags: ["HTML 5", "CSS","JavaScript","WeatherAPI"],
     liveUrl: "https://realtime-weatherr.netlify.app/",
     githubUrl: "https://github.com/aniket-g-3101/weather-app",
-    featured: true,
+    featured: false,
     category: "Web App",
   },
   {
@@ -237,8 +237,8 @@ export const PROJECTS = [
       "Developed a responsive and beautiful Personal Portfolio Web-App, dynamic UI that mirrors my Skills and Capability.",
     image: PROJECT_IMG_5,
     tags: ["React", "Tailwind CSS","JavaScript","Framer Motion"],
-    liveUrl: "",
-    githubUrl: "",
+    liveUrl: "https://aniketz-portfolio.vercel.app/",
+    githubUrl: "https://github.com/aniket-g-3101/my-portfolio",
     featured: true,
     category: "Web App",
   },
