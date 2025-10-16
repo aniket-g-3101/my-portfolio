@@ -237,7 +237,7 @@ export const PROJECTS = [
       "Developed a responsive and beautiful Personal Portfolio Web-App, dynamic UI that mirrors my Skills and Capability.",
     image: PROJECT_IMG_5,
     tags: ["React", "Tailwind CSS","JavaScript","Framer Motion"],
-    liveUrl: "https://aniketz-portfolio.vercel.app/",
+    liveUrl: "https://im-aniket.vercel.app/",
     githubUrl: "https://github.com/aniket-g-3101/my-portfolio",
     featured: true,
     category: "Web App",
