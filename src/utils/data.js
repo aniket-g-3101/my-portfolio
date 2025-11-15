@@ -70,6 +70,7 @@ import CERT_15 from "../assets/Certificates/be10x.png";
 import CERT_16 from "../assets/Certificates/Simpli-Learn-2.png";
 import CERT_17 from "../assets/Certificates/skyskill.png";
 import CERT_18 from "../assets/Certificates/Unified-Mentor.png";
+import CERT_19 from "../assets/Certificates/Deloitte.png";
 // …add more as needed!
 
 export const CERTIFICATES = [
@@ -176,6 +177,12 @@ export const CERTIFICATES = [
     year: "5 July 2025 - 5 Sep 2025",
     image: CERT_18,
   },
+  {
+    title: "Deloitte | Data Analytics Job Simulation",
+    issuer: "Deloitte",
+    year: "15th November, 2025",
+    image: CERT_19,
+  }
 ];
 
 
