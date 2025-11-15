@@ -46,49 +46,34 @@ export default function Certificates() {
     }
   };
 
-  // Smooth modal animations
+  // Simplified modal animations
   const modalVariants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: { duration: 0.3, ease: "easeOut" }
+      transition: { duration: 0.2 }
     },
     exit: { 
       opacity: 0,
-      transition: { duration: 0.2, ease: "easeIn" }
+      transition: { duration: 0.15 }
     }
   };
 
   const modalContentVariants = {
-    hidden: { scale: 0.9, opacity: 0, y: 20 },
+    hidden: { scale: 0.95, opacity: 0 },
     visible: { 
       scale: 1, 
-      opacity: 1, 
-      y: 0,
+      opacity: 1,
       transition: { 
-        duration: 0.3, 
-        ease: [0.34, 1.56, 0.64, 1] // Smooth spring effect
+        duration: 0.2,
+        ease: "easeOut"
       }
     },
     exit: { 
       scale: 0.95, 
       opacity: 0,
-      y: 10,
-      transition: { duration: 0.2, ease: "easeIn" }
+      transition: { duration: 0.15 }
     }
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    })
   };
 
   return (
@@ -100,7 +85,7 @@ export default function Certificates() {
           : "bg-gradient-to-b from-blue-50 via-white to-gray-100 text-gray-900"
       }`}
     >
-      {/* Background Effects */}
+      {/* Static Background Effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className={`absolute top-20 right-20 w-64 h-64 rounded-full blur-3xl opacity-5 ${
@@ -115,11 +100,11 @@ export default function Certificates() {
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header */}
+        {/* Header - simplified animation */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4 }}
           viewport={{ once: true }}
           className="text-center mb-12 sm:mb-14 md:mb-16"
         >
@@ -154,12 +139,12 @@ export default function Certificates() {
           <AnimatePresence>
             {canScrollLeft && (
               <motion.button
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 onClick={() => scroll("left")}
-                className={`absolute left-0 sm:left-2 md:left-0 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full shadow-lg transition-all duration-300 ${
+                className={`absolute left-0 sm:left-2 md:left-0 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full shadow-lg transition-all duration-200 ${
                   isDarkMode
                     ? "bg-gray-800/90 hover:bg-gray-700 text-white backdrop-blur-sm"
                     : "bg-white/90 hover:bg-gray-50 text-gray-900 shadow-md backdrop-blur-sm"
@@ -172,12 +157,12 @@ export default function Certificates() {
 
             {canScrollRight && (
               <motion.button
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 onClick={() => scroll("right")}
-                className={`absolute right-0 sm:right-2 md:right-0 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full shadow-lg transition-all duration-300 ${
+                className={`absolute right-0 sm:right-2 md:right-0 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full shadow-lg transition-all duration-200 ${
                   isDarkMode
                     ? "bg-gray-800/90 hover:bg-gray-700 text-white backdrop-blur-sm"
                     : "bg-white/90 hover:bg-gray-50 text-gray-900 shadow-md backdrop-blur-sm"
@@ -196,52 +181,36 @@ export default function Certificates() {
             style={{ 
               scrollbarWidth: 'none', 
               msOverflowStyle: 'none',
-              WebkitOverflowScrolling: 'touch' // Smooth scrolling on iOS
+              WebkitOverflowScrolling: 'touch'
             }}
           >
             {CERTIFICATES.map((cert, idx) => (
-              <motion.div
+              <div
                 key={idx}
-                custom={idx}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-50px" }}
-                variants={cardVariants}
                 onClick={() => setSelectedCert(cert)}
-                className={`w-[280px] sm:w-[300px] md:w-[320px] h-[380px] sm:h-[400px] md:h-[420px] cursor-pointer rounded-xl overflow-hidden border transition-all duration-300 snap-start flex-shrink-0 flex flex-col ${
+                className={`w-[280px] sm:w-[300px] md:w-[320px] h-[380px] sm:h-[400px] md:h-[420px] cursor-pointer rounded-xl overflow-hidden border transition-all duration-200 snap-start flex-shrink-0 flex flex-col ${
                   isDarkMode
                     ? "bg-gray-800 border-gray-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20"
                     : "bg-white border-gray-200 hover:border-blue-400 shadow-md hover:shadow-xl"
                 }`}
-                whileHover={{ 
-                  y: -8,
-                  transition: { duration: 0.3, ease: "easeOut" }
-                }}
-                whileTap={{ scale: 0.98 }}
+                style={{ willChange: "transform" }}
               >
                 {/* Image Container */}
                 <div className="relative h-[200px] sm:h-[220px] md:h-[240px] w-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0">
-                  <motion.img
+                  <img
                     src={cert.image}
                     alt={cert.title}
-                    className="w-full h-full object-contain p-2 sm:p-3"
+                    className="w-full h-full object-contain p-2 sm:p-3 transition-transform duration-300 hover:scale-105"
                     loading="lazy"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.3 }}
                   />
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.2 }}
-                    className={`absolute inset-0 flex items-center justify-center ${
-                      isDarkMode ? "bg-black/70" : "bg-black/50"
-                    }`}
-                  >
+                  <div className={`absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center ${
+                    isDarkMode ? "bg-black/70" : "bg-black/50"
+                  }`}>
                     <div className="flex items-center gap-2 text-white text-sm font-semibold">
                       <ExternalLink size={16} />
                       <span>View Certificate</span>
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
 
                 {/* Content */}
@@ -267,13 +236,13 @@ export default function Certificates() {
                     <span>{cert.year}</span>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
           {/* Scroll Indicator - Mobile Only */}
           <div className="flex justify-center gap-2 mt-4 md:hidden">
-            {CERTIFICATES.map((_, idx) => (
+            {CERTIFICATES.slice(0, 5).map((_, idx) => (
               <div
                 key={idx}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
@@ -287,7 +256,7 @@ export default function Certificates() {
         </div>
       </div>
 
-      {/* Modal - Enhanced for Mobile */}
+      {/* Modal - Optimized */}
       <AnimatePresence mode="wait">
         {selectedCert && (
           <motion.div
@@ -297,6 +266,7 @@ export default function Certificates() {
             exit="exit"
             className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
             onClick={() => setSelectedCert(null)}
+            style={{ willChange: "opacity" }}
           >
             <motion.div
               variants={modalContentVariants}
@@ -307,24 +277,19 @@ export default function Certificates() {
               className={`relative max-w-5xl w-full rounded-2xl overflow-hidden shadow-2xl ${
                 isDarkMode ? "bg-gray-900" : "bg-white"
               }`}
+              style={{ willChange: "transform, opacity" }}
             >
               {/* Close Button */}
-              <motion.button
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ duration: 0.2 }}
+              <button
                 onClick={() => setSelectedCert(null)}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 text-white bg-black/60 hover:bg-black/80 p-2 sm:p-2.5 rounded-full transition-all cursor-pointer"
+                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 text-white bg-black/60 hover:bg-black/80 p-2 sm:p-2.5 rounded-full transition-all duration-200 cursor-pointer"
                 aria-label="Close modal"
               >
                 <X size={18} className="sm:w-5 sm:h-5" />
-              </motion.button>
+              </button>
 
               {/* Certificate Image */}
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
+              <div 
                 className="relative w-full bg-black"
                 style={{ 
                   height: 'clamp(250px, 50vh, 600px)',
@@ -336,15 +301,10 @@ export default function Certificates() {
                   alt={selectedCert.title}
                   className="w-full h-full object-contain"
                 />
-              </motion.div>
+              </div>
 
               {/* Certificate Details */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.3 }}
-                className="p-5 sm:p-6 text-center"
-              >
+              <div className="p-5 sm:p-6 text-center">
                 <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${
                   isDarkMode ? "text-white" : "text-gray-900"
                 }`}>
@@ -361,7 +321,7 @@ export default function Certificates() {
                   <Calendar size={16} />
                   <span>{selectedCert.year}</span>
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           </motion.div>
         )}
