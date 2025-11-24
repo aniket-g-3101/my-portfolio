@@ -13,7 +13,7 @@ const SKILLS_CATEGORY = [
     title: "Design & UX",
     icon: Palette,
     gradient: "from-purple-500 to-pink-500",
-    skills: ["Figma", "Adobe XD", "UI/UX Design"]
+    skills: ["Canva", "Eraser", "UI/UX Design"]
   },
   {
     title: "Backend & Database",
@@ -144,42 +144,6 @@ export default function SkillsSection() {
             </motion.div>
           ))}
         </div>
-
-        {/* All Technologies Cloud */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className={`rounded-2xl p-8 md:p-12 mb-20 ${
-            isDarkMode 
-              ? "bg-gray-800/30 border border-gray-700" 
-              : "bg-white/50 border border-gray-200 shadow-xl backdrop-blur-sm"
-          }`}
-        >
-          <h3 className={`text-2xl font-bold text-center mb-8 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-            Complete Technology Stack I have
-          </h3>
-          <div className="flex flex-wrap justify-center gap-3">
-            {SKILLS_CATEGORY.flatMap(category => category.skills).map((skill, idx) => (
-              <motion.span
-                key={idx}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: idx * 0.03 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.1, y: -3 }}
-                className={`px-5 py-3 rounded-full text-sm font-semibold transition-all duration-200 cursor-default ${
-                  isDarkMode 
-                    ? "bg-gradient-to-r from-gray-700 to-gray-800 text-white hover:from-gray-600 hover:to-gray-700 shadow-lg" 
-                    : "bg-gradient-to-r from-white to-gray-50 text-gray-800 hover:from-gray-50 hover:to-gray-100 shadow-md border border-gray-200"
-                }`}
-              >
-                {skill}
-              </motion.span>
-            ))}
-          </div>
-        </motion.div>
 
         {/* Call to Action */}
         <motion.div
