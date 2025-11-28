@@ -1,270 +1,359 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Sparkles } from "lucide-react";
+import { Code2, Database, Layers, Zap } from "lucide-react";
 
 export default function PageLoader() {
+  // Inject Montserrat and Inter fonts for a more modern visual style
+  const FontStyles = () => (
+    <style>
+      {`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Montserrat:wght@500&display=swap');
+        .font-montserrat {
+          font-family: 'Montserrat', sans-serif;
+        }
+        .font-inter {
+          font-family: 'Inter', sans-serif;
+        }
+      `}
+    </style>
+  );
+
   const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [stage, setStage] = useState(0);
+  const [activeStep, setActiveStep] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const fullName = "Aniket Gavali";
+
+  const loadingSteps = [
+    { icon: Code2, label: "Frontend", color: "#3B82F6" },
+    { icon: Database, label: "Backend", color: "#8B5CF6" },
+    { icon: Layers, label: "Integration", color: "#EC4899" },
+    { icon: Zap, label: "Ready", color: "#10B981" }
+  ];
 
   useEffect(() => {
-    const stageTimer1 = setTimeout(() => setStage(1), 400);
-    
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        const increment = prev < 70 ? 3 : prev < 90 ? 1.5 : 0.8;
-        return Math.min(prev + increment, 100);
-      });
-    }, 35);
+    // Typing animation
+    let currentIndex = 0;
+    const typingInterval = setInterval(() => {
+      if (currentIndex <= fullName.length) {
+        setDisplayedText(fullName.slice(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 80);
 
-    const stageTimer2 = setTimeout(() => setStage(2), 2800);
-    const timer = setTimeout(() => setIsLoading(false), 3500);
+    // Step progression
+    const stepInterval = setInterval(() => {
+      setActiveStep((prev) => {
+        if (prev >= loadingSteps.length - 1) {
+          clearInterval(stepInterval);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 800);
+
+    // Total timeout for loading screen disappearance
+    const timer = setTimeout(() => setIsLoading(false), 4200);
 
     return () => {
-      clearInterval(progressInterval);
-      clearTimeout(stageTimer1);
-      clearTimeout(stageTimer2);
+      clearInterval(typingInterval);
+      clearInterval(stepInterval);
       clearTimeout(timer);
     };
   }, []);
 
+  // Exit transition
   const containerVariants = {
     exit: {
-      scale: 1.1,
       opacity: 0,
+      scale: 0.9,
+      filter: "blur(10px)",
       transition: {
         duration: 0.6,
-        ease: [0.43, 0.13, 0.23, 0.96],
+        ease: [0.76, 0, 0.24, 1],
       },
     },
   };
 
-  const logoVariants = {
-    initial: { scale: 0, opacity: 0 },
-    animate: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        ease: [0.34, 1.56, 0.64, 1],
-      },
-    },
-  };
-
-  const circleVariants = {
-    animate: {
-      scale: [1, 1.2, 1],
-      opacity: [0.5, 0.8, 0.5],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut",
-      },
-    },
-  };
-
-  const textVariants = {
-    initial: { opacity: 0, y: 20 },
+  // Title animation
+  const titleVariants = {
+    initial: { opacity: 0, y: 10 },
     animate: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.6,
-        delay: 0.5,
-        ease: [0.22, 1, 0.36, 1],
-      },
-    },
+      transition: { delay: 1.5, duration: 0.5 }
+    }
+  };
+  
+  /**
+   * Calculates the orbital radius for responsive design.
+   * Ensures the orbits shrink gracefully on smaller screens.
+   */
+  const getRadius = () => {
+    if (typeof window === 'undefined') return 80;
+    // Mobile (less than 640px)
+    if (window.innerWidth < 640) return 55;
+    // Tablet (less than 768px)
+    if (window.innerWidth < 768) return 65;
+    // Desktop/Default
+    return 80;
   };
 
-  const name = "Aniket Gavali";
-
   return (
-    <AnimatePresence mode="wait">
-      {isLoading && (
-        <motion.div
-          key="loader"
-          variants={containerVariants}
-          initial={{ opacity: 1 }}
-          exit="exit"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950"
-        >
-          <div className="absolute inset-0 opacity-30">
-            <div className="absolute inset-0 bg-gradient-radial from-blue-500/20 via-transparent to-transparent" />
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-blob" />
-            <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-blob animation-delay-2000" />
-            <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-blob animation-delay-4000" />
-          </div>
+    <>
+      <FontStyles />
+      <AnimatePresence mode="wait">
+        {isLoading && (
+          <motion.div
+            key="loader"
+            variants={containerVariants}
+            initial={{ opacity: 1 }}
+            exit="exit"
+            // Ensure full-screen coverage and high z-index
+            className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-slate-950 min-h-screen" 
+            style={{
+              WebkitFontSmoothing: "antialiased",
+              MozOsxFontSmoothing: "grayscale",
+            }}
+          >
+            {/* Animated gradient background */}
+            <motion.div 
+              className="absolute inset-0 opacity-20"
+              animate={{
+                background: [
+                  "radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.4) 0%, transparent 50%)",
+                  "radial-gradient(circle at 80% 50%, rgba(139, 92, 246, 0.4) 0%, transparent 50%)",
+                  "radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.4) 0%, transparent 50%)",
+                  "radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.4) 0%, transparent 50%)",
+                ]
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+            />
 
-          <div className="relative z-10 flex flex-col items-center px-4">
-            <motion.div
-              variants={logoVariants}
-              initial="initial"
-              animate="animate"
-              className="relative mb-12"
-            >
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  variants={circleVariants}
-                  initial={{ scale: 1, opacity: 0 }}
-                  animate="animate"
-                  transition={{ delay: i * 0.3 }}
-                  className="absolute inset-0 rounded-full border-2 border-blue-400/30"
-                  style={{
-                    width: `${120 + i * 40}px`,
-                    height: `${120 + i * 40}px`,
-                    left: `${-20 - i * 20}px`,
-                    top: `${-20 - i * 20}px`,
+            <div className="relative z-10 flex flex-col items-center px-4 w-full max-w-4xl">
+              
+              {/* Orbital Animation Container (Responsive sizing) */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mb-8 sm:mb-10 md:mb-12"
+              >
+                {/* Center Core (Responsive sizing) */}
+                <motion.div 
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600"
+                  animate={{
+                    boxShadow: [
+                      "0 0 40px rgba(59, 130, 246, 0.4), 0 0 80px rgba(139, 92, 246, 0.2)",
+                      "0 0 60px rgba(59, 130, 246, 0.6), 0 0 100px rgba(139, 92, 246, 0.3)",
+                      "0 0 40px rgba(59, 130, 246, 0.4), 0 0 80px rgba(139, 92, 246, 0.2)",
+                    ]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
                   }}
                 />
-              ))}
 
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-2xl shadow-blue-500/50">
-                <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blue-400/50 to-transparent animate-pulse" />
-                
-                <span className="relative text-3xl sm:text-4xl font-black text-white z-10">
-                  AG
-                </span>
+                {/* Orbiting Elements */}
+                {loadingSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  // Calculate initial position in degrees
+                  const angle = (index * 90) - 90;
+                  const isActive = activeStep >= index;
+                  const radius = getRadius(); // Responsive radius from function
+                  
+                  return (
+                    <motion.div
+                      key={index}
+                      className="absolute top-1/2 left-1/2"
+                      style={{
+                        x: "-50%",
+                        y: "-50%",
+                      }}
+                      animate={{
+                        rotate: 360,
+                      }}
+                      transition={{
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "linear",
+                        delay: index * 0.2,
+                      }}
+                    >
+                      <motion.div
+                        style={{
+                          rotate: -360,
+                          x: Math.cos((angle * Math.PI) / 180) * radius,
+                          y: Math.sin((angle * Math.PI) / 180) * radius,
+                        }}
+                        animate={{
+                          rotate: -360,
+                        }}
+                        transition={{
+                          duration: 8,
+                          repeat: Infinity,
+                          ease: "linear",
+                          delay: index * 0.2,
+                        }}
+                      >
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{
+                            scale: isActive ? [1, 1.1, 1] : 0.6,
+                            opacity: isActive ? 1 : 0.25,
+                          }}
+                          transition={{ 
+                            scale: {
+                              duration: 0.4,
+                              repeat: isActive ? Infinity : 0,
+                              repeatDelay: 2
+                            },
+                            opacity: { duration: 0.3 }
+                          }}
+                          // Responsive sizing for the orbiting icons
+                          className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center backdrop-blur-xl border"
+                          style={{
+                            backgroundColor: isActive ? `${step.color}20` : "#1e293b40",
+                            borderColor: isActive ? step.color : "#334155",
+                            boxShadow: isActive ? `0 0 25px ${step.color}50` : "none",
+                          }}
+                        >
+                          <Icon 
+                            className="w-5 h-5 sm:w-6 sm:h-6" 
+                            style={{ color: isActive ? step.color : "#64748b" }}
+                          />
+                        </motion.div>
+                      </motion.div>
+                    </motion.div>
+                  );
+                })}
 
-                <svg className="absolute inset-0 w-full h-full animate-spin-slow">
-                  <circle
-                    cx="50%"
-                    cy="50%"
-                    r="45%"
-                    fill="none"
-                    stroke="url(#gradient)"
-                    strokeWidth="2"
-                    strokeDasharray="10 5"
-                    opacity="0.6"
-                  />
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#60A5FA" />
-                      <stop offset="100%" stopColor="#A78BFA" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
-            </motion.div>
-
-            <motion.div
-              variants={textVariants}
-              initial="initial"
-              animate="animate"
-              className="mb-4 overflow-hidden"
-            >
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 animate-gradient">
-                {name}
-              </h1>
-            </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
-              className="text-sm sm:text-base text-blue-200/70 mb-8 tracking-wide"
-            >
-              Full Stack Developer
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1, duration: 0.5 }}
-              className="relative w-64 sm:w-80"
-            >
-              <div className="h-2 bg-slate-800/50 rounded-full overflow-hidden backdrop-blur-sm border border-slate-700/50">
+                {/* Orbital Ring */}
                 <motion.div
-                  className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full relative"
-                  style={{
-                    width: `${progress}%`,
-                    boxShadow: "0 0 20px rgba(99, 102, 241, 0.5)",
+                  className="absolute inset-0 rounded-full border border-slate-700/20"
+                  animate={{
+                    rotate: -360,
                   }}
-                  transition={{ duration: 0.1 }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-                </motion.div>
-              </div>
-
-              <div className="flex justify-between items-center mt-3">
-                <span className="text-xs text-slate-400 font-mono">Loading</span>
-                <motion.span
-                  key={progress}
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400"
-                >
-                  {Math.round(progress)}%
-                </motion.span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: stage === 2 ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
-              className="mt-6 flex items-center gap-2"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="w-4 h-4 text-indigo-400" />
+                  transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
               </motion.div>
-              <span className="text-xs text-indigo-300/80">Ready</span>
-            </motion.div>
-          </div>
 
-          <div className="absolute inset-0 bg-noise opacity-[0.02] pointer-events-none" />
 
-          <style jsx>{`
-            @keyframes blob {
-              0%, 100% { transform: translate(0, 0) scale(1); }
-              33% { transform: translate(30px, -50px) scale(1.1); }
-              66% { transform: translate(-20px, 20px) scale(0.9); }
-            }
-            @keyframes spin-slow {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-            @keyframes shimmer {
-              0% { transform: translateX(-100%); }
-              100% { transform: translateX(100%); }
-            }
-            @keyframes gradient {
-              0%, 100% { background-position: 0% 50%; }
-              50% { background-position: 100% 50%; }
-            }
+              {/* Name with Typing Animation (Responsive text size) */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
+                className="mb-2 sm:mb-3 text-center h-16 sm:h-20 md:h-24 flex items-center"
+              >
+                <h1 
+                  // Uses the new Montserrat font
+                  className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight font-montserrat"
+                  style={{
+                    fontWeight: 700, // Bold
+                    letterSpacing: "-0.02em",
+                  }}
+                >
+                  {displayedText}
+                  <motion.span
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{ duration: 0.8, repeat: Infinity }}
+                    className="inline-block w-0.5 sm:w-1 h-10 sm:h-12 md:h-14 lg:h-16 ml-1 bg-blue-500"
+                    style={{
+                      boxShadow: "0 0 10px rgba(59, 130, 246, 0.8)"
+                    }}
+                  />
+                </h1>
+              </motion.div>
 
-            .animate-blob {
-              animation: blob 7s ease-in-out infinite;
-            }
-            .animation-delay-2000 {
-              animation-delay: 2s;
-            }
-            .animation-delay-4000 {
-              animation-delay: 4s;
-            }
-            .animate-spin-slow {
-              animation: spin-slow 8s linear infinite;
-            }
-            .animate-shimmer {
-              animation: shimmer 2s infinite;
-            }
-            .animate-gradient {
-              background-size: 200% 200%;
-              animation: gradient 3s ease infinite;
-            }
-            .bg-noise {
-              background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            }
-          `}</style>
-        </motion.div>
-      )}
-    </AnimatePresence>
+              {/* Title (Responsive text size and tracking) */}
+              <motion.div
+                variants={titleVariants}
+                initial="initial"
+                animate="animate"
+                className="mb-6 sm:mb-8 text-center"
+              >
+                <p 
+                  className="text-xs sm:text-sm md:text-base tracking-[0.3em] font-medium text-slate-400 uppercase font-inter"
+                >
+                  Full Stack Developer
+                </p>
+              </motion.div>
+
+              {/* Active Step Indicator (Responsive spacing) */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.5, duration: 0.4 }}
+                className="flex items-center gap-4 sm:gap-5 relative"
+                style={{ minHeight: "40px" }}
+              >
+                {loadingSteps.map((step, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ scale: 0 }}
+                    animate={{
+                      scale: activeStep >= index ? 1 : 0.6,
+                      opacity: activeStep >= index ? 1 : 0.3,
+                    }}
+                    transition={{ 
+                      duration: 0.3, 
+                      delay: 1.5 + index * 0.1,
+                      ease: [0.22, 1, 0.36, 1]
+                    }}
+                    className="relative"
+                  >
+                    <motion.div
+                      className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full"
+                      style={{
+                        backgroundColor: activeStep >= index ? step.color : "#475569",
+                      }}
+                      animate={{
+                        boxShadow: activeStep >= index 
+                          ? `0 0 12px ${step.color}`
+                          : "none",
+                      }}
+                    />
+                    <AnimatePresence mode="wait">
+                      {activeStep === index && (
+                        <motion.div
+                          key={`label-${index}`}
+                          className="absolute -bottom-7 sm:-bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap"
+                          initial={{ opacity: 0, y: -5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <span 
+                            className="text-sm font-semibold"
+                            style={{ 
+                              color: step.color,
+                              fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
+                            }}
+                          >
+                            {step.label}
+                          </span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
