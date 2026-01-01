@@ -71,6 +71,11 @@ import CERT_16 from "../assets/Certificates/Simpli-Learn-2.png";
 import CERT_17 from "../assets/Certificates/skyskill.png";
 import CERT_18 from "../assets/Certificates/Unified-Mentor.png";
 import CERT_19 from "../assets/Certificates/Deloitte.png";
+import CERT_20 from "../assets/Certificates/Communication-Skills.png";
+import CERT_21 from "../assets/Certificates/Interview-Skills.png";
+import CERT_22 from "../assets/Certificates/Resume-and-Cover-letter.png";
+
+
 // …add more as needed!
 
 export const CERTIFICATES = [
@@ -182,7 +187,24 @@ export const CERTIFICATES = [
     issuer: "Deloitte",
     year: "15th November, 2025",
     image: CERT_19,
-  }
+  },
+  {
+    title: "Communication Skills",
+    issuer: "Tcs | Nextstep",
+    year: "17th December, 2025",
+    image: CERT_20,
+  },
+  {
+    title: "Interview Skills",
+    issuer: "Tcs | Nextstep",
+    year: "17th December, 2025",
+    image: CERT_21,
+  },{
+    title: "Write Effective Resume and Cover letter",
+    issuer: "Tcs | Nextstep",
+    year: "17th December, 2025",
+    image: CERT_22,
+  },
 ];
 
 

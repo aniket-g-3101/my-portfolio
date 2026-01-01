@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Code2, Database, Layers, Zap } from "lucide-react";
 
-export default function PageLoader() {
+export default function PageLoader({ setIsLoading }) {
   // Inject Montserrat and Inter fonts for a more modern visual style
   const FontStyles = () => (
     <style>
@@ -18,7 +18,7 @@ export default function PageLoader() {
     </style>
   );
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
   const [activeStep, setActiveStep] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
   const fullName = "Aniket Gavali";
@@ -31,6 +31,9 @@ export default function PageLoader() {
   ];
 
   useEffect(() => {
+    // Prevent scrolling while loading
+    document.body.style.overflow = 'hidden';
+
     // Typing animation
     let currentIndex = 0;
     const typingInterval = setInterval(() => {
@@ -54,14 +57,22 @@ export default function PageLoader() {
     }, 800);
 
     // Total timeout for loading screen disappearance
-    const timer = setTimeout(() => setIsLoading(false), 4200);
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+      // Wait for exit animation to complete before updating parent state
+      setTimeout(() => {
+        document.body.style.overflow = 'unset';
+        setIsLoading(false);
+      }, 600);
+    }, 4200);
 
     return () => {
       clearInterval(typingInterval);
       clearInterval(stepInterval);
       clearTimeout(timer);
+      document.body.style.overflow = 'unset';
     };
-  }, []);
+  }, [setIsLoading]);
 
   // Exit transition
   const containerVariants = {
@@ -104,17 +115,18 @@ export default function PageLoader() {
     <>
       <FontStyles />
       <AnimatePresence mode="wait">
-        {isLoading && (
+        {isVisible && (
           <motion.div
             key="loader"
             variants={containerVariants}
             initial={{ opacity: 1 }}
             exit="exit"
             // Ensure full-screen coverage and high z-index
-            className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-slate-950 min-h-screen" 
+            className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-slate-950 min-h-screen" 
             style={{
               WebkitFontSmoothing: "antialiased",
               MozOsxFontSmoothing: "grayscale",
+              pointerEvents: "all",
             }}
           >
             {/* Animated gradient background */}

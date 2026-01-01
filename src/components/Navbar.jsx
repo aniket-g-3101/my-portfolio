@@ -18,82 +18,64 @@ const Navbar = () => {
 
   return (
     <motion.nav
-      className={`fixed top-0 w-full z-50 px-6 py-4 border-b overflow-hidden ${
-        isDarkMode ? "border-gray-800" : "border-gray-300"
+      className={`fixed top-0 w-full z-50 px-6 py-4 border-b ${
+        isDarkMode ? "border-gray-800" : "border-gray-200"
       }`}
-      initial={{ y: -40, opacity: 0 }}
+      initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+      style={{
+        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      }}
     >
-      {/* 💧 Liquid Glass Background */}
-      <motion.div
-        className="absolute inset-0 -z-10 backdrop-blur-2xl rounded-b-xl overflow-hidden"
+      {/* Enhanced Glass Background */}
+      <div
+        className="absolute inset-0 -z-10 backdrop-blur-xl"
         style={{
           background: isDarkMode
-            ? "linear-gradient(135deg, rgba(15,15,15,0.6), rgba(40,40,40,0.25))"
-            : "linear-gradient(135deg, rgba(255,255,255,0.8), rgba(245,245,245,0.4))",
+            ? "rgba(17, 24, 39, 0.75)"
+            : "rgba(255, 255, 255, 0.75)",
           boxShadow: isDarkMode
-            ? "0 8px 32px rgba(0, 0, 0, 0.4)"
-            : "0 8px 24px rgba(180, 180, 180, 0.25)",
-          border: isDarkMode
-            ? "1px solid rgba(90,90,90,0.3)"
-            : "1px solid rgba(200,200,200,0.4)",
+            ? "0 4px 24px rgba(0, 0, 0, 0.3)"
+            : "0 4px 20px rgba(0, 0, 0, 0.06)",
         }}
-      >
-        {/* flowing shine */}
-        <motion.div
-          className="absolute top-0 left-[-50%] w-[200%] h-full opacity-15 pointer-events-none"
-          animate={{ x: ["-50%", "50%"] }}
-          transition={{
-            duration: 7,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          style={{
-            background:
-              "linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 100%)",
-          }}
-        />
-      </motion.div>
+      />
 
       <div className="max-w-7xl mx-auto flex items-center justify-between relative z-10">
-        {/* Left: Logo */}
+        {/* Logo */}
         <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.97 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
           className="flex items-center space-x-3 cursor-pointer group select-none"
+          onClick={() => scrollToSection("home")}
         >
-          <motion.div
-            animate={{ rotate: [0, 10, -10, 0] }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-              repeatDelay: 4,
-            }}
-          >
+          <div className={`p-2 rounded-lg transition-all duration-300 ${
+            isDarkMode 
+              ? "bg-gray-800/50 group-hover:bg-gray-800" 
+              : "bg-blue-50 group-hover:bg-blue-100"
+          }`}>
             <Code2
-              size={26}
-              className="text-blue-500 group-hover:text-blue-400 transition-colors duration-300"
+              size={24}
+              className={`transition-colors duration-300 ${
+                isDarkMode 
+                  ? "text-blue-400 group-hover:text-blue-300" 
+                  : "text-blue-600 group-hover:text-blue-700"
+              }`}
             />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: -15 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut", delay: 0.2 }}
-            className={`text-lg font-bold tracking-wide bg-gradient-to-r bg-clip-text text-transparent ${
-              isDarkMode
-                ? "from-blue-400 via-purple-400 to-pink-400"
-                : "from-blue-700 via-purple-600 to-pink-500"
+          </div>
+          <div
+            className={`text-lg font-bold tracking-tight ${
+              isDarkMode ? "text-white" : "text-gray-900"
             }`}
+            style={{ letterSpacing: '-0.01em' }}
           >
             Aniket Gavali
-          </motion.div>
+          </div>
         </motion.div>
 
-        {/* Right: Menu */}
-        <div className="hidden md:flex items-center space-x-8">
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center space-x-1">
           {["Home", "Skills", "Work", "About", "Contact"].map((item, idx) => (
             <motion.div
               key={item}
@@ -102,52 +84,44 @@ const Navbar = () => {
               className="relative"
             >
               <motion.button
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 260, damping: 16 }}
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20 }}
                 onClick={() => scrollToSection(item.toLowerCase())}
-                className={`relative text-sm uppercase tracking-wider px-1 transition-all duration-300 font-medium cursor-pointer ${
+                className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                   isDarkMode
                     ? "text-gray-300 hover:text-white"
-                    : "text-gray-800 hover:text-blue-700"
+                    : "text-gray-700 hover:text-gray-900"
                 }`}
+                style={{ letterSpacing: '0.02em' }}
               >
                 {item}
+                
+                {/* Background on hover */}
+                <motion.div
+                  className={`absolute inset-0 rounded-lg -z-10 ${
+                    isDarkMode ? "bg-gray-800/50" : "bg-gray-100"
+                  }`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: hoveredItem === idx ? 1 : 0 }}
+                  transition={{ duration: 0.2 }}
+                />
               </motion.button>
 
-              {/* Hover underline */}
+              {/* Animated bottom indicator */}
               <AnimatePresence>
                 {hoveredItem === idx && (
                   <motion.div
-                    layoutId="underline"
-                    className={`absolute left-0 right-0 h-[2px] rounded-full bottom-0 ${
+                    layoutId="activeIndicator"
+                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 rounded-full ${
                       isDarkMode
-                        ? "bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400"
-                        : "bg-gradient-to-r from-blue-600 via-purple-500 to-pink-400"
+                        ? "bg-blue-400"
+                        : "bg-blue-600"
                     }`}
-                    initial={{ opacity: 0, scaleX: 0 }}
-                    animate={{ opacity: 1, scaleX: 1 }}
-                    exit={{ opacity: 0, scaleX: 0 }}
-                    transition={{ duration: 0.35, ease: "easeInOut" }}
-                  />
-                )}
-              </AnimatePresence>
-
-              {/* Hover glow */}
-              <AnimatePresence>
-                {hoveredItem === idx && (
-                  <motion.div
-                    className="absolute inset-0 rounded-md -z-10"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.35 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.35 }}
-                    style={{
-                      background: isDarkMode
-                        ? "radial-gradient(circle at center, rgba(90,90,255,0.18), transparent 70%)"
-                        : "radial-gradient(circle at center, rgba(130,170,255,0.22), transparent 70%)",
-                      filter: "blur(6px)",
-                    }}
+                    initial={{ width: 0 }}
+                    animate={{ width: "60%" }}
+                    exit={{ width: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
                   />
                 )}
               </AnimatePresence>
@@ -156,49 +130,46 @@ const Navbar = () => {
 
           {/* Dark Mode Toggle */}
           <motion.button
-            whileHover={{ rotate: 15 }}
-            whileTap={{ rotate: -10 }}
-            transition={{ type: "spring", stiffness: 200, damping: 12 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
             onClick={toggleDarkMode}
-            className={`p-2 rounded-full transition-colors duration-300 cursor-pointer ${
+            className={`ml-4 p-2.5 rounded-lg transition-all duration-300 ${
               isDarkMode
-                ? "text-gray-400 hover:text-white hover:bg-gray-800"
-                : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                ? "bg-gray-800/50 text-gray-300 hover:bg-gray-800 hover:text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-900"
             }`}
           >
             {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
           </motion.button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center space-x-4">
+        {/* Mobile Menu Buttons */}
+        <div className="md:hidden flex items-center space-x-2">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => toggleDarkMode(isDarkMode ? "light" : "dark")}
-            className={`p-2 rounded-full cursor-pointer transition-colors ${
+            onClick={toggleDarkMode}
+            className={`p-2.5 rounded-lg transition-all duration-300 ${
               isDarkMode
-                ? "text-gray-400 hover:text-white hover:bg-gray-800"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
+                ? "bg-gray-800/50 text-gray-300 hover:bg-gray-800"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
           </motion.button>
+          
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className={`p-2 cursor-pointer rounded-full transition-colors ${
+            className={`p-2.5 rounded-lg transition-all duration-300 ${
               isDarkMode
-                ? "text-gray-400 hover:text-white hover:bg-gray-800"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-200"
+                ? "bg-gray-800/50 text-gray-300 hover:bg-gray-800"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
-            {isMenuOpen ? (
-              <X size={22} />
-            ) : (
-              <Menu size={22} />
-            )}
+            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </motion.button>
         </div>
       </div>
@@ -207,32 +178,37 @@ const Navbar = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-            className={`md:hidden mt-4 p-4 rounded-lg border ${
-              isDarkMode
-                ? "bg-gray-900 border-gray-800"
-                : "bg-white border-gray-200"
-            }`}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="md:hidden overflow-hidden"
           >
-            {["Home", "Skills", "Work", "About", "Contact"].map((item) => (
-              <motion.button
-                key={item}
-                whileHover={{ x: 6 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 260, damping: 15 }}
-                onClick={() => scrollToSection(item.toLowerCase())}
-                className={`block w-full text-left py-2 text-sm uppercase tracking-wider transition-colors ${
-                  isDarkMode
-                    ? "text-gray-300 hover:text-white"
-                    : "text-gray-800 hover:text-blue-600"
-                }`}
-              >
-                {item}
-              </motion.button>
-            ))}
+            <div className={`mt-4 p-3 rounded-xl border ${
+              isDarkMode
+                ? "bg-gray-800/50 border-gray-700"
+                : "bg-white/90 border-gray-200 shadow-lg"
+            }`}>
+              {["Home", "Skills", "Work", "About", "Contact"].map((item, idx) => (
+                <motion.button
+                  key={item}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  whileHover={{ x: 4 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => scrollToSection(item.toLowerCase())}
+                  className={`block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isDarkMode
+                      ? "text-gray-300 hover:text-white hover:bg-gray-700/50"
+                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                  }`}
+                  style={{ letterSpacing: '0.02em' }}
+                >
+                  {item}
+                </motion.button>
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -15,106 +15,184 @@ export default function AboutSection() {
   return (
     <section
       id="about"
-      className={`relative py-20 px-4 md:px-8 transition-colors duration-500 ${
-        isDarkMode ? "bg-gray-900" : "bg-white"
+      className={`relative py-20 md:py-28 px-4 sm:px-6 transition-colors duration-500 overflow-hidden ${
+        isDarkMode 
+          ? "bg-gray-900" 
+          : "bg-gradient-to-b from-blue-50 via-white to-gray-100"
       }`}
+      style={{
+        fontFamily:
+          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      }}
     >
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
+      {/* Background - Matching other sections */}
+      <div className="absolute inset-0 pointer-events-none">
+        {!isDarkMode && (
+          <>
+            <motion.div
+              className="absolute top-[-100px] right-[-100px] w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-blue-300 via-indigo-200 to-pink-200 blur-[100px] opacity-40"
+              animate={{ scale: [1, 1.03, 1], opacity: [0.35, 0.45, 0.35] }}
+              transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute bottom-[-150px] left-[-100px] w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-yellow-200 via-pink-200 to-blue-200 blur-[100px] opacity-35"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </>
+        )}
+        {isDarkMode && (
+          <>
+            <div className="absolute top-20 right-20 w-96 h-96 rounded-full blur-3xl opacity-10 bg-blue-500" />
+            <div className="absolute bottom-20 left-20 w-80 h-80 rounded-full blur-3xl opacity-10 bg-purple-500" />
+          </>
+        )}
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        {/* Header - Matching other sections */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-12 md:mb-16"
         >
-          <div className="flex items-center justify-center gap-3 mb-4">           
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold">
-            <span className={isDarkMode ? "text-white" : "text-gray-900"}>About </span>
-            <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">Me</span>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-3 mb-4"
+          >
+            <span
+              className={`text-sm uppercase tracking-[0.2em] font-semibold ${
+                isDarkMode ? "text-blue-400" : "text-blue-600"
+              }`}
+            >
+              Get to Know Me
+            </span>
+          </motion.div>
+          
+          <h2 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight ${
+            isDarkMode
+              ? "text-white"
+              : "text-gray-900 drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)]"
+          }`}
+          style={{ fontWeight: 700, letterSpacing: '-0.01em' }}>
+            <span>About </span>
+            <span className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 text-transparent bg-clip-text">
+              Me
+            </span>
           </h2>
         </motion.div>
 
         {/* Two Column Layout */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
-          {/* Left Column - Content */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10">
+          {/* Left Column */}
           <div className="lg:w-2/3">
             {/* Bio */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="mb-12"
+              className={`mb-8 p-5 md:p-6 rounded-xl border ${
+                isDarkMode
+                  ? "bg-gray-800/80 border-gray-700"
+                  : "bg-white/80 border-blue-200 shadow-lg shadow-blue-100"
+              }`}
             >
-              <p className={`text-lg leading-relaxed ${
-                isDarkMode ? "text-gray-300" : "text-gray-600"
-              }`}>
-                I'm Aniket Gavali, a self-taught coder with a passion for building interactive web apps,
-                exploring new technologies, and solving challenging problems. I enjoy crafting clean
-                and responsive user interfaces while keeping performance and usability in mind.
+              <p
+                className={`text-base md:text-lg leading-relaxed ${
+                  isDarkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+                style={{ lineHeight: '1.7' }}
+              >
+                I'm Aniket Gavali, a self-taught coder with a passion for building
+                interactive web apps, exploring new technologies, and solving
+                challenging problems. I enjoy crafting clean and responsive user
+                interfaces while keeping performance and usability in mind.
               </p>
             </motion.div>
 
-            {/* Stats */}
+            {/* Stats - Smaller */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="grid grid-cols-3 gap-4 mb-12"
+              className="grid grid-cols-3 gap-3 md:gap-4 mb-8"
             >
               {STATS.map((stat, idx) => (
                 <div
                   key={idx}
-                  className={`text-center p-5 rounded-lg border ${
-                    isDarkMode ? "border-gray-800 bg-gray-800/50" : "border-gray-200 bg-gray-50"
+                  className={`text-center p-3 md:p-4 rounded-xl border ${
+                    isDarkMode
+                      ? "border-gray-700 bg-gray-800/80"
+                      : "border-blue-200 bg-white/80 shadow-md"
                   }`}
                 >
-                  <p className={`text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent`}>
+                  <p className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 bg-clip-text text-transparent">
                     {stat.value}
                   </p>
-                  <p className={`mt-1 text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  <p
+                    className={`mt-1 text-xs font-semibold ${
+                      isDarkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
                     {stat.label}
                   </p>
                 </div>
               ))}
             </motion.div>
 
-            {/* Passions */}
-            <div className="mb-12">
-              <motion.h3
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-                className={`text-2xl font-bold mb-6 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            {/* Passions - Smaller cards */}
+            <div className="mb-8">
+              <h3
+                className={`text-xl md:text-2xl font-bold mb-5 ${
+                  isDarkMode ? "text-white" : "text-gray-900"
+                }`}
+                style={{ fontWeight: 700 }}
               >
                 What I Love
-              </motion.h3>
+              </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                 {PASSIONS.map((passion, idx) => (
                   <motion.div
                     key={idx}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: idx * 0.1 }}
+                    transition={{ duration: 0.5, delay: idx * 0.08 }}
                     viewport={{ once: true }}
-                    className={`p-5 rounded-lg text-center border transition-all duration-300 hover:shadow-lg ${
+                    className={`p-4 rounded-xl text-center border transition-all hover:-translate-y-1 ${
                       isDarkMode
-                        ? "border-gray-800 bg-gray-800/50 hover:border-gray-700"
-                        : "border-gray-200 bg-white hover:border-gray-300"
+                        ? "border-gray-700 bg-gray-800/80 hover:border-gray-600"
+                        : "border-blue-200 bg-white/80 hover:border-blue-400 shadow-md"
                     }`}
                   >
-                    <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600`}>
-                      <passion.icon size={20} className="text-white" />
+                    <div className={`w-10 h-10 mx-auto mb-2.5 rounded-lg flex items-center justify-center ${
+                      isDarkMode
+                        ? "bg-gradient-to-br from-blue-500 to-indigo-600"
+                        : "bg-gradient-to-br from-blue-500 to-blue-600"
+                    }`}>
+                      <passion.icon size={18} className="text-white" />
                     </div>
-                    <h4 className={`text-base font-semibold mb-2 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    <h4
+                      className={`text-sm font-bold mb-1 ${
+                        isDarkMode ? "text-white" : "text-gray-900"
+                      }`}
+                      style={{ fontWeight: 700 }}
+                    >
                       {passion.title}
                     </h4>
-                    <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    <p
+                      className={`text-xs leading-relaxed cursor-pointer   ${
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                      style={{ lineHeight: '1.5' }}
+                    >
                       {passion.description}
                     </p>
                   </motion.div>
@@ -122,28 +200,34 @@ export default function AboutSection() {
               </div>
             </div>
 
-            {/* Skills */}
+            {/* Skills - Smaller tags */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h3 className={`text-2xl font-bold mb-6 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+              <h3
+                className={`text-xl md:text-2xl font-bold mb-5 ${
+                  isDarkMode ? "text-white" : "text-gray-900"
+                }`}
+                style={{ fontWeight: 700 }}
+              >
                 Hobbies / Passion
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 cursor-pointer">
                 {SKILLS.map((skill, idx) => (
                   <motion.span
                     key={idx}
-                    initial={{ opacity: 0, scale: 0.8 }}
+                    initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3, delay: idx * 0.05 }}
                     viewport={{ once: true }}
-                    className={`px-4 py-2 rounded-full text-sm font-medium cursor-pointer border transition-all duration-300 hover:scale-105 ${
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                       isDarkMode
-                        ? "border-gray-700 bg-gray-800 text-gray-300 hover:border-gray-600"
-                        : "border-gray-300 bg-gray-50 text-gray-700 hover:border-gray-400"
+                        ? "border-gray-700 bg-gray-800/80 text-gray-300 hover:border-gray-600"
+                        : "border-blue-200 bg-blue-50 text-blue-700 hover:border-blue-400"
                     }`}
                   >
                     {skill}
@@ -153,23 +237,23 @@ export default function AboutSection() {
             </motion.div>
           </div>
 
-          {/* Right Column - Timeline */}
+          {/* Right Column - Journey Timeline */}
           <div className="lg:w-1/3">
-            <motion.h3
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className={`text-2xl font-bold mb-8 ${isDarkMode ? "text-white" : "text-gray-900"}`}
+            <h3
+              className={`text-xl md:text-2xl font-bold mb-6 ${
+                isDarkMode ? "text-white" : "text-gray-900"
+              }`}
+              style={{ fontWeight: 700 }}
             >
               My Journey
-            </motion.h3>
+            </h3>
 
             <div className="relative">
-              {/* Vertical line */}
-              <div className={`absolute left-4 top-0 w-0.5 h-full ${
-                isDarkMode ? "bg-gray-800" : "bg-gray-200"
-              }`} />
+              <div
+                className={`absolute left-3 top-0 w-0.5 h-full ${
+                  isDarkMode ? "bg-gray-700" : "bg-blue-200"
+                }`}
+              />
 
               {JOURNEY_STEPS.map((step, idx) => (
                 <motion.div
@@ -178,28 +262,42 @@ export default function AboutSection() {
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
                   viewport={{ once: true }}
-                  className="relative pl-12 pb-10 last:pb-0"
+                  className="relative pl-10 pb-8 last:pb-0"
                 >
-                  {/* Icon */}
-                  <div className={`absolute left-0 w-8 h-8 rounded-full flex items-center justify-center ${step.color} shadow-md`}>
+                  <div
+                    className={`absolute left-0 w-7 h-7 rounded-lg flex items-center justify-center ${step.color}`}
+                  >
                     <step.icon size={14} className="text-white" />
                   </div>
 
-                  {/* Content */}
                   <div
-                    className={`p-4 rounded-lg border transition-all duration-300 hover:shadow-md ${
+                    className={`p-4 rounded-xl border transition-all hover:-translate-y-1 ${
                       isDarkMode
-                        ? "border-gray-800 bg-gray-800/50 hover:border-gray-700"
-                        : "border-gray-200 bg-white hover:border-gray-300"
+                        ? "border-gray-700 bg-gray-800/80 hover:border-gray-600"
+                        : "border-blue-200 bg-white/80 hover:border-blue-400 shadow-md"
                     }`}
                   >
-                    <span className={`text-xs font-semibold ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                    <span
+                      className={`text-xs font-semibold ${
+                        isDarkMode ? "text-blue-400" : "text-blue-600"
+                      }`}
+                    >
                       {step.year}
                     </span>
-                    <h4 className={`text-base font-semibold mt-1 mb-1 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                    <h4
+                      className={`text-sm font-bold mt-1 mb-1 ${
+                        isDarkMode ? "text-white" : "text-gray-900"
+                      }`}
+                      style={{ fontWeight: 700 }}
+                    >
                       {step.title}
                     </h4>
-                    <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    <p
+                      className={`text-xs leading-relaxed ${
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                      style={{ lineHeight: '1.5' }}
+                    >
                       {step.description}
                     </p>
                   </div>

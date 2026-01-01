@@ -2,7 +2,14 @@ import { useTheme } from "../../../context/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { CERTIFICATES } from "../../../utils/data";
-import { X, Award, Calendar, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  X,
+  Award,
+  Calendar,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 export default function Certificates() {
   const { isDarkMode } = useTheme();
@@ -11,7 +18,6 @@ export default function Certificates() {
   const [canScrollRight, setCanScrollRight] = useState(true);
   const carouselRef = useRef(null);
 
-  // Check scroll position to show/hide navigation buttons
   const checkScroll = () => {
     if (carouselRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
@@ -22,136 +28,111 @@ export default function Certificates() {
 
   useEffect(() => {
     const carousel = carouselRef.current;
-    if (carousel) {
-      carousel.addEventListener('scroll', checkScroll);
-      checkScroll(); // Initial check
-      
-      // Check on window resize
-      window.addEventListener('resize', checkScroll);
-      
-      return () => {
-        carousel.removeEventListener('scroll', checkScroll);
-        window.removeEventListener('resize', checkScroll);
-      };
-    }
+    if (!carousel) return;
+
+    carousel.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+    checkScroll();
+
+    return () => {
+      carousel.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
   }, []);
 
-  const scroll = (direction) => {
-    if (carouselRef.current) {
-      const scrollAmount = window.innerWidth < 768 ? 300 : 350;
-      carouselRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
-
-  // Simplified modal animations
-  const modalVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { duration: 0.2 }
-    },
-    exit: { 
-      opacity: 0,
-      transition: { duration: 0.15 }
-    }
-  };
-
-  const modalContentVariants = {
-    hidden: { scale: 0.95, opacity: 0 },
-    visible: { 
-      scale: 1, 
-      opacity: 1,
-      transition: { 
-        duration: 0.2,
-        ease: "easeOut"
-      }
-    },
-    exit: { 
-      scale: 0.95, 
-      opacity: 0,
-      transition: { duration: 0.15 }
-    }
+  const scroll = (dir) => {
+    if (!carouselRef.current) return;
+    const amount = window.innerWidth < 768 ? 260 : 320;
+    carouselRef.current.scrollBy({
+      left: dir === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
   };
 
   return (
     <section
       id="certificates"
-      className={`relative py-16 sm:py-20 md:py-24 px-4 sm:px-6 overflow-hidden transition-colors duration-500 ${
+      className={`relative py-20 px-4 md:px-8 transition-colors duration-500 overflow-hidden ${
         isDarkMode
           ? "bg-gray-900 text-white"
           : "bg-gradient-to-b from-blue-50 via-white to-gray-100 text-gray-900"
       }`}
+      style={{
+        fontFamily:
+          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      }}
     >
-      {/* Static Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Background accents */}
+      <div className="absolute inset-0 pointer-events-none">
         <div
-          className={`absolute top-20 right-20 w-64 h-64 rounded-full blur-3xl opacity-5 ${
+          className={`absolute top-20 right-20 w-72 h-72 rounded-full blur-3xl opacity-10 ${
             isDarkMode ? "bg-blue-500" : "bg-blue-400"
           }`}
         />
         <div
-          className={`absolute bottom-20 left-20 w-48 h-48 rounded-full blur-3xl opacity-5 ${
+          className={`absolute bottom-20 left-20 w-60 h-60 rounded-full blur-3xl opacity-10 ${
             isDarkMode ? "bg-purple-500" : "bg-pink-400"
           }`}
         />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header - simplified animation */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
           viewport={{ once: true }}
-          className="text-center mb-12 sm:mb-14 md:mb-16"
+          className="text-center mb-14"
         >
-          <div className="inline-flex items-center gap-2 mb-3 sm:mb-4">
-            <Award className={isDarkMode ? "text-blue-400" : "text-blue-600"} size={20} />
-            <span className={`text-xs sm:text-sm uppercase tracking-widest font-semibold ${
-              isDarkMode ? "text-gray-400" : "text-blue-600"
-            }`}>
+          <div className="inline-flex items-center gap-2 mb-3">
+            <Award
+              size={18}
+              className={isDarkMode ? "text-blue-400" : "text-blue-600"}
+            />
+            <span
+              className={`text-xs uppercase tracking-[0.3em] font-semibold ${
+                isDarkMode ? "text-gray-400" : "text-blue-600"
+              }`}
+            >
               Certifications
             </span>
           </div>
 
-          <h2 className={`text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 ${
-            isDarkMode ? "text-white" : "text-gray-900"
-          }`}>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
             Professional{" "}
             <span className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 text-transparent bg-clip-text">
               Credentials
             </span>
           </h2>
 
-          <p className={`text-base sm:text-lg max-w-2xl mx-auto px-4 ${
-            isDarkMode ? "text-gray-400" : "text-gray-700"
-          }`}>
-            Continuous learning and professional development across various technologies
+          <p
+            className={`max-w-2xl mx-auto text-base ${
+              isDarkMode ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
+            Continuous learning and professional development across modern
+            technologies.
           </p>
         </motion.div>
 
-        {/* Horizontal Scrollable Layout */}
+        {/* Carousel */}
         <div className="relative">
-          {/* Navigation Buttons - Desktop */}
+          {/* Nav buttons */}
           <AnimatePresence>
             {canScrollLeft && (
               <motion.button
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
                 onClick={() => scroll("left")}
-                className={`absolute left-0 sm:left-2 md:left-0 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full shadow-lg transition-all duration-200 ${
+                className={`absolute left-0 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full backdrop-blur-md transition ${
                   isDarkMode
-                    ? "bg-gray-800/90 hover:bg-gray-700 text-white backdrop-blur-sm"
-                    : "bg-white/90 hover:bg-gray-50 text-gray-900 shadow-md backdrop-blur-sm"
+                    ? "bg-gray-800/80 hover:bg-gray-700"
+                    : "bg-white/90 hover:bg-gray-50 shadow-md"
                 }`}
-                aria-label="Scroll left"
               >
-                <ChevronLeft size={20} className="sm:w-6 sm:h-6" />
+                <ChevronLeft size={22} />
               </motion.button>
             )}
 
@@ -160,180 +141,127 @@ export default function Certificates() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
                 onClick={() => scroll("right")}
-                className={`absolute right-0 sm:right-2 md:right-0 top-1/2 -translate-y-1/2 z-20 p-2.5 sm:p-3 rounded-full shadow-lg transition-all duration-200 ${
+                className={`absolute right-0 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full backdrop-blur-md transition ${
                   isDarkMode
-                    ? "bg-gray-800/90 hover:bg-gray-700 text-white backdrop-blur-sm"
-                    : "bg-white/90 hover:bg-gray-50 text-gray-900 shadow-md backdrop-blur-sm"
+                    ? "bg-gray-800/80 hover:bg-gray-700"
+                    : "bg-white/90 hover:bg-gray-50 shadow-md"
                 }`}
-                aria-label="Scroll right"
               >
-                <ChevronRight size={20} className="sm:w-6 sm:h-6" />
+                <ChevronRight size={22} />
               </motion.button>
             )}
           </AnimatePresence>
 
-          {/* Certificates Carousel */}
+          {/* Cards */}
           <div
             ref={carouselRef}
-            className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto scrollbar-hide py-6 sm:py-8 px-2 sm:px-4 md:px-12 snap-x snap-mandatory scroll-smooth"
-            style={{ 
-              scrollbarWidth: 'none', 
-              msOverflowStyle: 'none',
-              WebkitOverflowScrolling: 'touch'
-            }}
+            className="flex gap-5 overflow-x-auto scrollbar-hide py-6 px-2 md:px-10 snap-x snap-mandatory"
           >
             {CERTIFICATES.map((cert, idx) => (
               <div
                 key={idx}
                 onClick={() => setSelectedCert(cert)}
-                className={`w-[280px] sm:w-[300px] md:w-[320px] h-[380px] sm:h-[400px] md:h-[420px] cursor-pointer rounded-xl overflow-hidden border transition-all duration-200 snap-start flex-shrink-0 flex flex-col ${
+                className={`w-[260px] sm:w-[250px] md:w-[270px] h-[320px] rounded-2xl flex-shrink-0 cursor-pointer snap-start border transition-all hover:-translate-y-1 ${
                   isDarkMode
-                    ? "bg-gray-800 border-gray-700 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20"
+                    ? "bg-gray-800/80 border-gray-700 hover:border-blue-500"
                     : "bg-white border-gray-200 hover:border-blue-400 shadow-md hover:shadow-xl"
                 }`}
-                style={{ willChange: "transform" }}
               >
-                {/* Image Container */}
-                <div className="relative h-[200px] sm:h-[220px] md:h-[240px] w-full overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0">
+                {/* Image */}
+                <div className="h-[160px] bg-gray-100 flex items-center justify-center overflow-hidden rounded-t-2xl">
                   <img
                     src={cert.image}
                     alt={cert.title}
-                    className="w-full h-full object-contain p-2 sm:p-3 transition-transform duration-300 hover:scale-105"
-                    loading="lazy"
+                    className="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
                   />
-                  <div className={`absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center ${
-                    isDarkMode ? "bg-black/70" : "bg-black/50"
-                  }`}>
-                    <div className="flex items-center gap-2 text-white text-sm font-semibold">
-                      <ExternalLink size={16} />
-                      <span>View Certificate</span>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+                <div className="p-4 flex flex-col justify-between h-[160px]">
                   <div>
-                    <h3 className={`font-bold text-sm sm:text-base mb-2 sm:mb-3 line-clamp-2 min-h-[40px] sm:min-h-[48px] ${
-                      isDarkMode ? "text-white" : "text-gray-900"
-                    }`}>
+                    <h3 className="text-sm font-semibold mb-2 line-clamp-2">
                       {cert.title}
                     </h3>
-                    
-                    <p className={`text-xs sm:text-sm font-medium mb-2 sm:mb-3 line-clamp-1 ${
-                      isDarkMode ? "text-blue-400" : "text-blue-600"
-                    }`}>
+                    <p
+                      className={`text-xs font-medium mb-2 ${
+                        isDarkMode ? "text-blue-400" : "text-blue-600"
+                      }`}
+                    >
                       {cert.issuer}
                     </p>
                   </div>
 
-                  <div className={`flex items-center gap-2 text-xs sm:text-sm ${
-                    isDarkMode ? "text-gray-400" : "text-gray-600"
-                  }`}>
-                    <Calendar size={14} className="sm:w-4 sm:h-4" />
-                    <span>{cert.year}</span>
+                  <div
+                    className={`flex items-center gap-2 text-xs ${
+                      isDarkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    <Calendar size={14} />
+                    {cert.year}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Scroll Indicator - Mobile Only */}
-          <div className="flex justify-center gap-2 mt-4 md:hidden">
-            {CERTIFICATES.slice(0, 5).map((_, idx) => (
-              <div
-                key={idx}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  idx === 0 ? "w-6" : "w-1.5"
-                } ${
-                  isDarkMode ? "bg-gray-700" : "bg-gray-300"
-                }`}
-              />
             ))}
           </div>
         </div>
       </div>
 
-      {/* Modal - Optimized */}
-      <AnimatePresence mode="wait">
+      {/* Modal */}
+      <AnimatePresence>
         {selectedCert && (
           <motion.div
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={() => setSelectedCert(null)}
-            style={{ willChange: "opacity" }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
           >
             <motion.div
-              variants={modalContentVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className={`relative max-w-5xl w-full rounded-2xl overflow-hidden shadow-2xl ${
+              className={`max-w-5xl w-full rounded-2xl overflow-hidden ${
                 isDarkMode ? "bg-gray-900" : "bg-white"
               }`}
-              style={{ willChange: "transform, opacity" }}
             >
-              {/* Close Button */}
               <button
                 onClick={() => setSelectedCert(null)}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 text-white bg-black/60 hover:bg-black/80 p-2 sm:p-2.5 rounded-full transition-all duration-200 cursor-pointer"
-                aria-label="Close modal"
+                className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-white cursor-pointer" 
               >
-                <X size={18} className="sm:w-5 sm:h-5" />
+                <X size={18} />
               </button>
 
-              {/* Certificate Image */}
-              <div 
-                className="relative w-full bg-black"
-                style={{ 
-                  height: 'clamp(250px, 50vh, 600px)',
-                  maxHeight: '70vh'
-                }}
-              >
+              <div className="h-[60vh] flex items-center justify-center bg-black">
                 <img
                   src={selectedCert.image}
                   alt={selectedCert.title}
-                  className="w-full h-full object-contain"
+                  className="max-h-full max-w-full object-contain"
                 />
               </div>
 
-              {/* Certificate Details */}
-              <div className="p-5 sm:p-6 text-center">
-                <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${
-                  isDarkMode ? "text-white" : "text-gray-900"
-                }`}>
+              <div className="p-6 text-center">
+                <h3 className="text-xl font-bold mb-2">
                   {selectedCert.title}
                 </h3>
-                <p className={`text-base sm:text-lg mb-2 font-medium ${
-                  isDarkMode ? "text-blue-400" : "text-blue-600"
-                }`}>
+                <p className="text-blue-500 font-medium mb-1">
                   {selectedCert.issuer}
                 </p>
-                <div className={`flex items-center justify-center gap-2 text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}>
-                  <Calendar size={16} />
-                  <span>{selectedCert.year}</span>
-                </div>
+                <p className="text-sm text-gray-500">
+                  {selectedCert.year}
+                </p>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Custom Scrollbar Styles */}
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
         .scrollbar-hide {
-          -ms-overflow-style: none;
           scrollbar-width: none;
         }
       `}</style>

@@ -44,7 +44,7 @@ export default function ContactSection() {
       href: "mailto:aniket.g.dev@gmail.com",
       copyable: true,
     },
-    { icon: Phone, value: "+91 7822XXXXXX", href: "tel:+917822050904" },
+    { icon: Phone, value: "+91 7822X XXXXX", href: "tel:+917822050904" },
     {
       icon: MapPin,
       value: "Solapur, India",
@@ -292,41 +292,54 @@ export default function ContactSection() {
   return (
     <section
       id="contact"
-      className={`relative py-16 sm:py-20 md:py-28 px-4 sm:px-6 md:px-12 font-['Poppins',sans-serif] transition-colors duration-500 overflow-hidden ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      className={`relative py-20 md:py-28 px-4 sm:px-6 transition-colors duration-500 overflow-hidden ${
+        isDarkMode 
+          ? "bg-gray-900 text-white" 
+          : "bg-gradient-to-b from-blue-50 via-white to-gray-100 text-gray-900"
       }`}
+      style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}
     >
-      {/* Background Shapes */}
+      {/* Background Shapes - Enhanced for light mode */}
       <div className="absolute inset-0 pointer-events-none">
-        <div
-          className={`absolute top-16 right-16 w-96 h-96 rounded-full blur-3xl opacity-5 ${
-            isDarkMode ? "bg-blue-500" : "bg-blue-400"
-          }`}
-        />
-        <div
-          className={`absolute bottom-16 left-16 w-80 h-80 rounded-full blur-3xl opacity-5 ${
-            isDarkMode ? "bg-purple-500" : "bg-pink-400"
-          }`}
-        />
+        {!isDarkMode && (
+          <>
+            <motion.div
+              className="absolute top-[-100px] right-[-100px] w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-blue-300 via-indigo-200 to-pink-200 blur-[100px] opacity-40"
+              animate={{ scale: [1, 1.03, 1], opacity: [0.35, 0.45, 0.35] }}
+              transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute bottom-[-150px] left-[-100px] w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-yellow-200 via-pink-200 to-blue-200 blur-[100px] opacity-35"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </>
+        )}
+        {isDarkMode && (
+          <>
+            <div className="absolute top-20 right-20 w-96 h-96 rounded-full blur-3xl opacity-10 bg-blue-500" />
+            <div className="absolute bottom-20 left-20 w-80 h-80 rounded-full blur-3xl opacity-10 bg-purple-500" />
+          </>
+        )}
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="text-center mb-12 sm:mb-16 md:mb-20">
+        {/* Header - Matching HeroSection style */}
+        <div className="text-center mb-16 md:mb-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4"
+            className="inline-flex items-center gap-3 mb-4"
           >
             <Send
               className={isDarkMode ? "text-blue-400" : "text-blue-600"}
               size={20}
             />
             <span
-              className={`text-xs sm:text-sm uppercase tracking-widest font-semibold ${
-                isDarkMode ? "text-gray-400" : "text-blue-600"
+              className={`text-sm uppercase tracking-[0.2em] font-semibold ${
+                isDarkMode ? "text-blue-400" : "text-blue-600"
               }`}
             >
               Get In Touch
@@ -337,7 +350,12 @@ export default function ContactSection() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
-            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4"
+            className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight ${
+              isDarkMode
+                ? "text-white"
+                : "text-gray-900 drop-shadow-[0_2px_3px_rgba(0,0,0,0.1)]"
+            }`}
+            style={{ fontWeight: 700, letterSpacing: '-0.01em' }}
           >
             Let's{" "}
             <span className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 text-transparent bg-clip-text">
@@ -349,16 +367,17 @@ export default function ContactSection() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
-            className={`text-base sm:text-lg md:text-xl max-w-3xl mx-auto px-4 ${
-              isDarkMode ? "text-gray-300" : "text-gray-700"
+            className={`text-base md:text-lg max-w-3xl mx-auto px-4 ${
+              isDarkMode ? "text-gray-400" : "text-gray-600 font-normal"
             }`}
+            style={{ lineHeight: '1.7' }}
           >
             Open to work opportunities and internships. Let's build something
             great together!
           </motion.p>
         </div>
 
-        <div className="grid lg:grid-cols-[1.5fr_1.2fr] gap-6 sm:gap-8 md:gap-12 max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-[1fr_0.8fr] gap-6 lg:gap-8 max-w-4xl mx-auto">
           {/* Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
@@ -367,28 +386,29 @@ export default function ContactSection() {
             viewport={{ once: true }}
           >
             <div
-              className={`relative p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl border shadow-xl overflow-hidden backdrop-blur-xl transition-all ${
+              className={`relative p-5 md:p-7 rounded-xl border shadow-xl overflow-hidden backdrop-blur-xl transition-all ${
                 isDarkMode
-                  ? "bg-[#0f1629]/80 border-gray-700"
-                  : "bg-white border-gray-200"
+                  ? "bg-gray-800/80 border-gray-700"
+                  : "bg-white/80 border-blue-200 shadow-blue-200/50"
               }`}
             >
-              {/* Heading */}
+              {/* Form Heading */}
               <h3
-                className={`text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-5 md:mb-6 relative z-10 ${
+                className={`text-xl md:text-2xl font-bold mb-5 ${
                   isDarkMode ? "text-white" : "text-gray-900"
                 }`}
+                style={{ fontWeight: 700, letterSpacing: '-0.01em' }}
               >
-                Contact Me
+                Send a Message
               </h3>
 
-              <div className="space-y-3 sm:space-y-4 relative z-10">
+              <div className="space-y-4">
                 {/* Name Field */}
                 <div>
                   <label
                     htmlFor="name"
-                    className={`block mb-1 sm:mb-1.5 text-xs sm:text-sm font-medium ${
-                      isDarkMode ? "text-gray-400" : "text-gray-700"
+                    className={`block mb-1.5 text-sm font-semibold ${
+                      isDarkMode ? "text-gray-200" : "text-gray-800"
                     }`}
                   >
                     Name <span className="text-red-500">*</span>
@@ -403,23 +423,25 @@ export default function ContactSection() {
                     placeholder="John Doe"
                     maxLength={50}
                     autoComplete="name"
-                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 ${
+                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm transition-all focus:outline-none focus:ring-2 font-medium ${
                       errors.name && touched.name
                         ? isDarkMode
-                          ? "border-red-500/50 focus:ring-red-500/50 bg-[#1b2333]/80 text-white"
-                          : "border-red-500/50 focus:ring-red-500/50 bg-gray-50 text-gray-900"
+                          ? "border-red-500/70 focus:ring-red-500/50 bg-gray-900/80 text-white placeholder:text-gray-500"
+                          : "border-red-500/70 focus:ring-red-500/50 bg-red-50 text-gray-900 placeholder:text-red-400"
                         : isDarkMode
-                        ? "bg-[#1b2333]/80 border-gray-700 text-white focus:ring-purple-500"
-                        : "bg-gray-50 border-gray-300 text-gray-900 focus:ring-purple-500"
+                        ? "bg-gray-900/80 border-gray-600 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        : "bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500"
                     }`}
                   />
                   {errors.name && touched.name && (
                     <motion.p
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-1 text-xs text-red-500 flex items-center gap-1"
+                      className={`mt-2 text-sm font-semibold flex items-center gap-1.5 ${
+                        isDarkMode ? "text-red-400" : "text-red-600"
+                      }`}
                     >
-                      <AlertCircle size={12} />
+                      <AlertCircle size={14} />
                       {errors.name}
                     </motion.p>
                   )}
@@ -429,8 +451,8 @@ export default function ContactSection() {
                 <div>
                   <label
                     htmlFor="email"
-                    className={`block mb-1 sm:mb-1.5 text-xs sm:text-sm font-medium ${
-                      isDarkMode ? "text-gray-400" : "text-gray-700"
+                    className={`block mb-1.5 text-sm font-semibold ${
+                      isDarkMode ? "text-gray-200" : "text-gray-800"
                     }`}
                   >
                     Email <span className="text-red-500">*</span>
@@ -445,23 +467,25 @@ export default function ContactSection() {
                     placeholder="john@example.com"
                     maxLength={254}
                     autoComplete="email"
-                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 ${
+                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm transition-all focus:outline-none focus:ring-2 font-medium ${
                       errors.email && touched.email
                         ? isDarkMode
-                          ? "border-red-500/50 focus:ring-red-500/50 bg-[#1b2333]/80 text-white"
-                          : "border-red-500/50 focus:ring-red-500/50 bg-gray-50 text-gray-900"
+                          ? "border-red-500/70 focus:ring-red-500/50 bg-gray-900/80 text-white placeholder:text-gray-500"
+                          : "border-red-500/70 focus:ring-red-500/50 bg-red-50 text-gray-900 placeholder:text-red-400"
                         : isDarkMode
-                        ? "bg-[#1b2333]/80 border-gray-700 text-white focus:ring-purple-500"
-                        : "bg-gray-50 border-gray-300 text-gray-900 focus:ring-purple-500"
+                        ? "bg-gray-900/80 border-gray-600 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        : "bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500"
                     }`}
                   />
                   {errors.email && touched.email && (
                     <motion.p
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-1 text-xs text-red-500 flex items-center gap-1"
+                      className={`mt-2 text-sm font-semibold flex items-center gap-1.5 ${
+                        isDarkMode ? "text-red-400" : "text-red-600"
+                      }`}
                     >
-                      <AlertCircle size={12} />
+                      <AlertCircle size={14} />
                       {errors.email}
                     </motion.p>
                   )}
@@ -469,22 +493,22 @@ export default function ContactSection() {
 
                 {/* Message Field */}
                 <div>
-                  <div className="flex justify-between items-center mb-1 sm:mb-1.5">
+                  <div className="flex justify-between items-center mb-2">
                     <label
                       htmlFor="message"
-                      className={`text-xs sm:text-sm font-medium ${
-                        isDarkMode ? "text-gray-400" : "text-gray-700"
+                      className={`text-sm font-semibold ${
+                        isDarkMode ? "text-gray-200" : "text-gray-800"
                       }`}
                     >
                       Message <span className="text-red-500">*</span>
                     </label>
                     <span
-                      className={`text-xs ${
+                      className={`text-xs font-semibold ${
                         formData.message.length > 1000
                           ? "text-red-500"
                           : isDarkMode
-                          ? "text-gray-500"
-                          : "text-gray-400"
+                          ? "text-gray-400"
+                          : "text-gray-600"
                       }`}
                     >
                       {formData.message.length}/1000
@@ -499,46 +523,55 @@ export default function ContactSection() {
                     rows="4"
                     placeholder="Tell me about your project or opportunity..."
                     maxLength={1000}
-                    className={`w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border text-sm transition-all focus:outline-none focus:ring-2 resize-none ${
+                    className={`w-full px-3.5 py-2.5 rounded-lg border text-sm transition-all focus:outline-none focus:ring-2 resize-none font-medium ${
                       errors.message && touched.message
                         ? isDarkMode
-                          ? "border-red-500/50 focus:ring-red-500/50 bg-[#1b2333]/80 text-white placeholder:text-gray-400"
-                          : "border-red-500/50 focus:ring-red-500/50 bg-gray-50 text-gray-900 placeholder:text-gray-500"
+                          ? "border-red-500/70 focus:ring-red-500/50 bg-gray-900/80 text-white placeholder:text-gray-500"
+                          : "border-red-500/70 focus:ring-red-500/50 bg-red-50 text-gray-900 placeholder:text-red-400"
                         : isDarkMode
-                        ? "bg-[#1b2333]/80 border-gray-700 text-gray-200 placeholder:text-gray-400 focus:ring-purple-500"
-                        : "bg-gray-50 border-gray-300 text-gray-700 placeholder:text-gray-500 focus:ring-purple-500"
+                        ? "bg-gray-900/80 border-gray-600 text-white placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500"
+                        : "bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-500 focus:ring-blue-500 focus:border-blue-500"
                     }`}
                   />
                   {errors.message && touched.message && (
                     <motion.p
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-1 text-xs text-red-500 flex items-center gap-1"
+                      className={`mt-2 text-sm font-semibold flex items-center gap-1.5 ${
+                        isDarkMode ? "text-red-400" : "text-red-600"
+                      }`}
                     >
-                      <AlertCircle size={12} />
+                      <AlertCircle size={14} />
                       {errors.message}
                     </motion.p>
                   )}
                 </div>
 
-                {/* Submit Button */}
+                {/* Submit Button - Matching HeroSection style */}
                 <motion.button
-                  whileHover={{ scale: isSubmitting ? 1 : 1.03 }}
+                  whileHover={{ 
+                    y: -2,
+                    scale: isSubmitting ? 1 : 1.02,
+                    boxShadow: isDarkMode 
+                      ? "0 10px 30px rgba(59,130,246,0.5)" 
+                      : "0 10px 35px rgba(59,130,246,0.4)",
+                  }}
                   whileTap={{ scale: isSubmitting ? 1 : 0.97 }}
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className={`relative w-full py-3 sm:py-3.5 rounded-lg sm:rounded-xl font-semibold text-white text-sm tracking-wide transition-all overflow-hidden ${
+                  className={`relative w-full py-3 rounded-lg font-semibold text-white text-sm tracking-wide transition-all overflow-hidden shadow-md ${
                     isSubmitting
                       ? "opacity-70 cursor-not-allowed"
                       : "cursor-pointer"
                   } ${
                     isDarkMode
-                      ? "bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 hover:shadow-[0_0_25px_-5px_rgba(168,85,247,0.5)]"
-                      : "bg-gradient-to-r from-purple-500 via-pink-400 to-orange-300 hover:shadow-[0_0_20px_-5px_rgba(192,132,252,0.5)]"
+                      ? "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                      : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-blue-500/30"
                   }`}
+                  style={{ letterSpacing: '0.05em' }}
                 >
-                  <span className="flex items-center justify-center gap-2">
+                  <span className="flex items-center justify-center gap-2 relative z-10">
                     {isSubmitting ? (
                       <>
                         <motion.div
@@ -555,6 +588,11 @@ export default function ContactSection() {
                       </>
                     )}
                   </span>
+                  <motion.div
+                    className="absolute inset-0 bg-white opacity-0"
+                    whileHover={{ opacity: 0.1 }}
+                    transition={{ duration: 0.3 }}
+                  />
                 </motion.button>
 
                 {/* Status Message */}
@@ -562,20 +600,20 @@ export default function ContactSection() {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`p-2.5 sm:p-3 mt-2 sm:mt-3 rounded-lg flex items-center gap-2 text-xs sm:text-sm font-medium ${
+                    className={`p-3 rounded-lg flex items-center gap-2 text-xs font-semibold ${
                       status.type === "success"
                         ? isDarkMode
-                          ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                          : "bg-green-50 text-green-700 border border-green-100"
+                          ? "bg-green-500/20 text-green-300 border-2 border-green-500/40"
+                          : "bg-green-50 text-green-800 border-2 border-green-200"
                         : isDarkMode
-                        ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                        : "bg-red-50 text-red-700 border border-red-100"
+                        ? "bg-red-500/20 text-red-300 border-2 border-red-500/40"
+                        : "bg-red-50 text-red-800 border-2 border-red-200"
                     }`}
                   >
                     {status.type === "success" ? (
-                      <CheckCircle size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                      <CheckCircle size={14} className="flex-shrink-0" />
                     ) : (
-                      <XCircle size={14} className="sm:w-4 sm:h-4 flex-shrink-0" />
+                      <XCircle size={14} className="flex-shrink-0" />
                     )}
                     <span>{status.message}</span>
                   </motion.div>
@@ -590,34 +628,39 @@ export default function ContactSection() {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="space-y-6 sm:space-y-8"
+            className="space-y-6"
           >
             {/* Contact Cards */}
             <div
-              className={`p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl ${
+              className={`p-5 md:p-6 rounded-xl shadow-lg ${
                 isDarkMode
                   ? "bg-gray-800/70 border border-gray-700"
-                  : "bg-white border border-gray-200 shadow-xl"
+                  : "bg-white/80 border border-blue-200 shadow-blue-100"
               }`}
             >
-              <div className="space-y-3 sm:space-y-4">
+              <h4 className={`text-base md:text-lg font-bold mb-4 ${
+                isDarkMode ? "text-white" : "text-gray-900"
+              }`} style={{ fontWeight: 700 }}>
+                Contact Information
+              </h4>
+              <div className="space-y-3">
                 {contactInfo.map((info, idx) => (
-                  <div key={idx} className="flex items-center gap-3 sm:gap-4">
+                  <div key={idx} className="flex items-center gap-3">
                     <div
-                      className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl ${
+                      className={`p-2.5 rounded-lg ${
                         isDarkMode
                           ? "bg-blue-500/10 text-blue-400"
                           : "bg-blue-50 text-blue-600"
                       }`}
                     >
-                      <info.icon size={18} className="sm:w-[22px] sm:h-[22px]" />
+                      <info.icon size={18} />
                     </div>
                     {info.href ? (
                       <a
                         href={info.href}
-                        className={`text-sm sm:text-base md:text-lg font-medium flex-1 transition-colors break-all ${
+                        className={`text-sm font-semibold flex-1 transition-colors break-all ${
                           isDarkMode
-                            ? "text-gray-300 hover:text-blue-400"
+                            ? "text-gray-200 hover:text-blue-400"
                             : "text-gray-800 hover:text-blue-600"
                         }`}
                       >
@@ -625,8 +668,8 @@ export default function ContactSection() {
                       </a>
                     ) : (
                       <span
-                        className={`text-sm sm:text-base md:text-lg font-medium flex-1 ${
-                          isDarkMode ? "text-gray-300" : "text-gray-800"
+                        className={`text-sm font-semibold flex-1 ${
+                          isDarkMode ? "text-gray-200" : "text-gray-800"
                         }`}
                       >
                         {info.value}
@@ -637,17 +680,17 @@ export default function ContactSection() {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={handleCopyEmail}
-                        className={`p-1.5 sm:p-2 rounded-lg ${
+                        className={`p-1.5 rounded-lg transition-colors ${
                           isDarkMode
-                            ? "hover:bg-gray-700 text-gray-400"
-                            : "hover:bg-gray-100 text-gray-600"
+                            ? "hover:bg-gray-700 text-gray-300"
+                            : "hover:bg-blue-100 text-gray-700"
                         }`}
                         aria-label="Copy email address"
                       >
                         {copiedEmail ? (
-                          <CheckCircle size={14} className="sm:w-4 sm:h-4" />
+                          <CheckCircle size={16} />
                         ) : (
-                          <Copy size={14} className="sm:w-4 sm:h-4" />
+                          <Copy size={16} />
                         )}
                       </motion.button>
                     )}
@@ -658,36 +701,37 @@ export default function ContactSection() {
 
             {/* Social Links */}
             <div
-              className={`p-5 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl ${
+              className={`p-5 md:p-6 rounded-xl shadow-lg ${
                 isDarkMode
                   ? "bg-gray-800/70 border border-gray-700"
-                  : "bg-white border border-gray-200 shadow-xl"
+                  : "bg-white/80 border border-blue-200 shadow-blue-100"
               }`}
             >
-              <p
-                className={`text-sm sm:text-base md:text-lg font-medium mb-3 sm:mb-4 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
+              <h4
+                className={`text-base md:text-lg font-bold mb-4 ${
+                  isDarkMode ? "text-white" : "text-gray-900"
                 }`}
+                style={{ fontWeight: 700 }}
               >
                 Connect on Social
-              </p>
-              <div className="flex gap-3 sm:gap-4 flex-wrap">
+              </h4>
+              <div className="flex gap-3 flex-wrap">
                 {socialLinks.map((social, idx) => (
                   <motion.a
                     key={idx}
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    whileHover={{ scale: 1.1, y: -3 }}
+                    whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`p-3 sm:p-4 rounded-lg sm:rounded-xl transition-all ${
+                    className={`p-3 rounded-lg transition-all shadow-md ${
                       isDarkMode
-                        ? "bg-gray-700/50 text-gray-400 hover:bg-gray-700"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        ? "bg-gray-700/50 text-gray-300 hover:bg-gray-700"
+                        : "bg-gray-100 text-gray-700 hover:bg-blue-100"
                     } ${social.color}`}
                     aria-label={`Visit ${social.url}`}
                   >
-                    <social.icon size={22} className="sm:w-[26px] sm:h-[26px]" />
+                    <social.icon size={20} />
                   </motion.a>
                 ))}
               </div>
