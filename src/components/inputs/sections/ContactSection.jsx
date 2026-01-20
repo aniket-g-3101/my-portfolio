@@ -122,7 +122,7 @@ export default function ContactSection() {
       return "Message is required";
     }
     if (trimmedMessage.length < 2) {
-      return "Message must be at least 5 characters";
+      return "Message must be at least 2 characters";
     }
     if (trimmedMessage.length > 1000) {
       return "Message must be less than 1000 characters";
