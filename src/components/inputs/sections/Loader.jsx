@@ -43,7 +43,7 @@ export default function PageLoader({ setIsLoading }) {
       } else {
         clearInterval(typingInterval);
       }
-    }, 80);
+    }, 100);
 
     // Step progression
     const stepInterval = setInterval(() => {
@@ -297,7 +297,7 @@ export default function PageLoader({ setIsLoading }) {
                 className="mb-6 sm:mb-8 text-center"
               >
                 <p 
-                  className="text-xs sm:text-sm md:text-base tracking-[0.3em] font-medium text-slate-400 uppercase font-inter"
+                  className="text-xs sm:text-sm md:text-base tracking-[0.5em] font-medium text-slate-400 uppercase font-inter"
                 >
                   Full Stack Developer
                 </p>
