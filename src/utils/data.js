@@ -25,7 +25,7 @@ import PROJECT_IMG_2 from "../assets/images/mysql-manager.png";
 import PROJECT_IMG_3 from "../assets/images/profile-card.png";
 import PROJECT_IMG_4 from "../assets/images/weather-app.png";
 import PROJECT_IMG_5 from "../assets/images/Portfolio.png";
-// import PROJECT_IMG_6 from "../assets/images/project-6.png";
+import PROJECT_IMG_6 from "../assets/images/voice-to-code.png";
 // import PROJECT_IMG_7 from "../assets/images/project-7.png";
 
 // ===================== TECH STACK =====================
@@ -268,6 +268,18 @@ export const PROJECTS = [
     tags: ["React", "Tailwind CSS","JavaScript","Framer Motion"],
     liveUrl: "https://im-aniket.vercel.app/",
     githubUrl: "https://github.com/aniket-g-3101/my-portfolio",
+    featured: false,
+    category: "Web App",
+  },
+   {
+    id: 6,
+    title: "Voice-to-Code Ai",
+    description:
+      "Voice-to-Code-Ai : AI-powered code generator that turns your voice or text into real, beginner-friendly code.",
+    image: PROJECT_IMG_6,
+    tags: ["React+Vite", "Tailwind CSS","WebSpeech API","NodeJs","ExpressJs","Grok SDK"],
+    liveUrl: "https://voice-to-code-ai.vercel.app/",
+    githubUrl: "https://github.com/aniket-g-3101/Voice-To-Code-Ai",
     featured: true,
     category: "Web App",
   },
@@ -289,7 +301,7 @@ export const JOURNEY_STEPS = [
     title: "Completed HSC",
     company: "Self-taught",
     description:
-      "Completed My SSC from Pandharpur securing 70.33%.",
+      "Completed My HSC from Pandharpur securing 70.33%.",
     icon: Briefcase,
     color: "bg-green-500",
   },
@@ -298,7 +310,7 @@ export const JOURNEY_STEPS = [
     title: "Started Coding Journey",
     company: "Self-taught",
     description:
-      "Started coding Journey by taking admission to the course BCS(ECS) in Sangola College Sangola.",
+      "Started coding Journey by taking admission to the course BCS(ECS) with CGPA of 9.78 in Sangola College Sangola.",
     icon: Rocket,
     color: "bg-orange-500",
   },

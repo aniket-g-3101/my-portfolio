@@ -121,7 +121,7 @@ export default function ContactSection() {
     if (!trimmedMessage) {
       return "Message is required";
     }
-    if (trimmedMessage.length < 5) {
+    if (trimmedMessage.length < 2) {
       return "Message must be at least 5 characters";
     }
     if (trimmedMessage.length > 1000) {
@@ -411,7 +411,7 @@ export default function ContactSection() {
                       isDarkMode ? "text-gray-200" : "text-gray-800"
                     }`}
                   >
-                    Name <span className="text-red-500">*</span>
+                    Name 
                   </label>
                   <input
                     type="text"
@@ -455,7 +455,7 @@ export default function ContactSection() {
                       isDarkMode ? "text-gray-200" : "text-gray-800"
                     }`}
                   >
-                    Email <span className="text-red-500">*</span>
+                    Email 
                   </label>
                   <input
                     type="email"
@@ -500,7 +500,7 @@ export default function ContactSection() {
                         isDarkMode ? "text-gray-200" : "text-gray-800"
                       }`}
                     >
-                      Message <span className="text-red-500">*</span>
+                      Message 
                     </label>
                     <span
                       className={`text-xs font-semibold ${
