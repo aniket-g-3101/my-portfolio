@@ -6,10 +6,10 @@ export default function FooterSection() {
   const { isDarkMode } = useTheme();
 
   const socialLinks = [
-    { icon: Github, url: "https://github.com/aniket-g-3101", label: "GitHub" },
-    { icon: Linkedin, url: "https://linkedin.com/in/aniket", label: "LinkedIn" },
-    { icon: Instagram, url: "https://www.instagram.com/im_aniket_0106/", label: "Instagram" },
-    { icon: Mail, url: "mailto:aniket.g.dev@gmail.com", label: "Email" },
+    { icon: Github, url: "https://github.com/aniket-g-3101", label: "GitHub", color: "#181717", lightColor: "#181717", darkColor: "#ffffff" },
+    { icon: Linkedin, url: "https://linkedin.com/in/aniket", label: "LinkedIn", color: "#0A66C2", lightColor: "#0A66C2", darkColor: "#0A66C2" },
+    { icon: Instagram, url: "https://www.instagram.com/im_aniket_0106/", label: "Instagram", color: "#E4405F", lightColor: "#E4405F", darkColor: "#E4405F" },
+    { icon: Mail, url: "mailto:aniket.g.dev@gmail.com", label: "Email", color: "#EA4335", lightColor: "#EA4335", darkColor: "#EA4335" },
   ];
 
   return (
@@ -91,8 +91,8 @@ export default function FooterSection() {
           </p>
         </motion.div>
 
-        {/* Social Links - Compact */}
-        <div className="flex flex-wrap justify-center md:justify-end gap-3 md:gap-4">
+        {/* Social Links - Clean Modern Design */}
+        <div className="flex flex-wrap justify-center md:justify-end gap-3">
           {socialLinks.map((social, idx) => {
             const Icon = social.icon;
             return (
@@ -102,17 +102,49 @@ export default function FooterSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={social.label}
-                whileHover={{ y: -2, scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all border ${
-                  isDarkMode
-                    ? "bg-gray-800/80 border-gray-700 text-gray-300 hover:text-blue-400 hover:border-gray-600"
-                    : "bg-white/80 border-blue-200 text-gray-700 hover:text-blue-600 hover:border-blue-400 shadow-sm"
-                }`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ y: -3, scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="group relative"
               >
-                <Icon size={18} />
-                <span className="hidden sm:inline">{social.label}</span>
+                <div
+                  className={`relative px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-300 border ${
+                    isDarkMode
+                      ? "bg-gray-800/50 border-gray-700/50 hover:bg-gray-800 hover:border-gray-600"
+                      : "bg-white border-gray-200 hover:border-gray-300 shadow-sm hover:shadow"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <motion.div
+                      whileHover={{ rotate: 5 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
+                      <Icon
+                        size={18}
+                        style={{ color: isDarkMode ? social.darkColor : social.lightColor }}
+                        className="transition-transform duration-300 group-hover:scale-110"
+                      />
+                    </motion.div>
+                    <span 
+                      className={`hidden sm:inline transition-colors duration-300 ${
+                        isDarkMode 
+                          ? "text-gray-300 group-hover:text-white" 
+                          : "text-gray-700 group-hover:text-gray-900"
+                      }`}
+                    >
+                      {social.label}
+                    </span>
+                  </div>
+
+                  {/* Bottom accent line */}
+                  <div
+                    className="absolute bottom-0 left-0 h-0.5 w-0 group-hover:w-full transition-all duration-300 ease-out"
+                    style={{ backgroundColor: isDarkMode ? social.darkColor : social.lightColor }}
+                  />
+                </div>
               </motion.a>
             );
           })}
