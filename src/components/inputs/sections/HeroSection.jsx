@@ -1,48 +1,46 @@
-import React, { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
+import { motion } from "framer-motion";
 import { ArrowUpRight, ArrowRight, Mail } from "lucide-react";
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { useTheme } from "../../../context/ThemeContext";
 import Resume from "../../../assets/Resume/Aniket_Gavali_Resume.pdf";
 import { useLenisContext } from "../../../context/LenisContext";
 import { scrollToSection as lenisScrollTo } from "../../../hooks/useLenis";
-import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
 
 const HeroSection = () => {
   const { isDarkMode } = useTheme();
   const lenisRef = useLenisContext();
-  const [isSocialRailHovered, setIsSocialRailHovered] = useState(false);
-  const railRef = useRef(null);
 
   const scrollToSection = (sectionId) => {
     lenisScrollTo(sectionId, lenisRef);
   };
 
   const socialLinks = [
-    { icon: FiGithub, href: "https://github.com/aniket-g-3101", label: "GITHUB", subtitle: "Check out my code" },
-    { icon: FiLinkedin, href: "https://linkedin.com/in/aniketgavali", label: "LINKEDIN", subtitle: "View my profile" },
-    { icon: Mail, href: "mailto:aniket.g.dev@gmail.com", label: "EMAIL", subtitle: "Drop me a mail" },
+    {
+      icon: FiGithub,
+      href: "https://github.com/aniket-g-3101",
+      label: "GitHub",
+      subtitle: "Source code & projects",
+      hoverClass: "group-hover:text-indigo-400 group-hover:border-indigo-500/60 group-hover:bg-indigo-500/15 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]",
+      badgeBg: "bg-indigo-500",
+    },
+    {
+      icon: FiLinkedin,
+      href: "https://linkedin.com/in/aniketgavali",
+      label: "LinkedIn",
+      subtitle: "Professional profile",
+      hoverClass: "group-hover:text-sky-400 group-hover:border-sky-500/60 group-hover:bg-sky-500/15 group-hover:shadow-[0_0_20px_rgba(14,165,233,0.4)]",
+      badgeBg: "bg-sky-500",
+    },
+    {
+      icon: Mail,
+      href: "mailto:aniket.g.dev@gmail.com",
+      label: "Email",
+      subtitle: "Drop me a message",
+      hoverClass: "group-hover:text-cyan-400 group-hover:border-cyan-500/60 group-hover:bg-cyan-500/15 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]",
+      badgeBg: "bg-cyan-500",
+    },
   ];
-
-  // GSAP Hover Width Expansion and Staggered Node Reveal
-  useGSAP(() => {
-    gsap.to(railRef.current, {
-      width: isSocialRailHovered ? 230 : 66,
-      duration: 0.4,
-      ease: "power2.out",
-      overwrite: "auto",
-    });
-
-    gsap.to(".rail-text-node", {
-      opacity: isSocialRailHovered ? 1 : 0,
-      x: isSocialRailHovered ? 0 : -10,
-      duration: 0.3,
-      stagger: isSocialRailHovered ? 0.05 : 0,
-      ease: "power2.out",
-      overwrite: "auto",
-    });
-  }, [isSocialRailHovered]);
 
   const stagger = {
     hidden: { opacity: 0 },
@@ -92,87 +90,137 @@ const HeroSection = () => {
         />
       </div>
 
-      {/* LEFT VERTICAL SOCIAL RAIL - MINIMAL REDESIGN */}
-      <aside
-        ref={railRef}
-        onMouseEnter={() => setIsSocialRailHovered(true)}
-        onMouseLeave={() => setIsSocialRailHovered(false)}
-        className="hidden xl:flex fixed left-5 2xl:left-8 top-1/2 -translate-y-1/2 flex-col items-center z-40 py-6 w-[66px] bg-transparent border-none shadow-none"
-      >
-        {/* Simple Minimal Vertical Line replacing fancy waves */}
-        <div
-          className={`absolute inset-y-0 left-1/2 -translate-x-[0.5px] w-px pointer-events-none z-0 ${
-            isDarkMode ? "bg-slate-800/80" : "bg-slate-200/80"
-          }`}
-        />
+      {/* ── FUTURISTIC CYBER SOCIAL RAIL WITH LASER LINES & "LET'S CONNECT HERE" ── */}
+      <aside className="hidden xl:flex fixed left-6 2xl:left-10 top-1/2 -translate-y-1/2 flex-col items-center z-40">
+        <motion.div
+          initial={{ opacity: 0, x: -25 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center gap-3.5"
+        >
+          {/* Top Futuristic Laser Line with Traveling Light Pulse */}
+          <div className="flex flex-col items-center gap-1.5">
+            <span className={`text-[8px] font-mono-tech tracking-widest uppercase select-none ${isDarkMode ? "text-cyan-400/60" : "text-blue-500/70"}`}>
+              SYS.01
+            </span>
+            <div
+              className={`w-[2px] h-14 rounded-full laser-rail ${
+                isDarkMode
+                  ? "bg-slate-800/90 shadow-[0_0_8px_rgba(56,189,248,0.2)]"
+                  : "bg-slate-300/90 shadow-[0_0_6px_rgba(2,132,199,0.2)]"
+              }`}
+            />
+          </div>
 
-        {/* Section Title */}
-        <div className="my-4 flex items-center justify-center w-full flex-shrink-0 h-16 relative">
-          <AnimatePresence mode="wait">
-            {!isSocialRailHovered ? (
-              <motion.span
-                key="vertical"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className={`font-grotesk text-[10px] font-bold tracking-[0.25em] uppercase select-none ${
-                  isDarkMode ? "text-slate-500" : "text-slate-400"
-                }`}
-                style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-              >
-                CONNECT
-              </motion.span>
-            ) : (
-              <motion.div
-                key="horizontal"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className={`text-center font-grotesk text-[10px] font-bold tracking-[0.25em] uppercase select-none ${
-                  isDarkMode ? "text-white" : "text-slate-900"
-                }`}
-              >
-                CONNECT
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Rounded Square Glass Nodes */}
-        <div className="flex flex-col items-center gap-3 w-full py-2 px-2 z-10">
-          {socialLinks.map((item, idx) => (
-            <a
-              key={idx}
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center w-full cursor-pointer rounded-2xl p-1 transition-all duration-300 relative"
+          {/* "LET'S CONNECT HERE" Futuristic Vertical Tech Label with Live Telemetry Pulse */}
+          <div className="flex flex-col items-center gap-2.5 select-none py-1 group cursor-default">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-80" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500 shadow-[0_0_10px_#06b6d4]" />
+            </span>
+            <span
+              className={`font-mono-tech text-[9.5px] font-extrabold tracking-[0.3em] uppercase transition-all duration-300 ${
+                isDarkMode
+                  ? "text-slate-300 group-hover:text-cyan-300 group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]"
+                  : "text-slate-600 group-hover:text-blue-600 group-hover:drop-shadow-[0_0_8px_rgba(37,99,235,0.6)]"
+              }`}
+              style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
             >
-              <div
-                className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
-                  isDarkMode
-                    ? "border-slate-800 bg-slate-950/65 text-slate-400 group-hover:text-white group-hover:border-slate-700"
-                    : "border-slate-200 bg-white text-slate-500 group-hover:text-slate-900 group-hover:border-slate-300"
-                }`}
-              >
-                <item.icon size={17} className="transition-transform duration-300 group-hover:scale-110" />
-              </div>
+              LET&apos;S CONNECT HERE
+            </span>
+          </div>
 
-              <div className="overflow-hidden flex flex-col justify-center items-start text-left pl-3.5 select-none pointer-events-none w-full rail-text-node">
-                <h4 className={`text-[11px] font-grotesk font-black tracking-wider uppercase leading-none mb-1 ${
-                  isDarkMode ? "text-white" : "text-slate-900"
-                }`}>
-                  {item.label}
-                </h4>
-                <p className={`text-[9px] font-mono leading-none ${
-                  isDarkMode ? "text-slate-400" : "text-slate-500"
-                }`}>
-                  {item.subtitle}
-                </p>
+          {/* Futuristic Center Cyber Separator */}
+          <div className="flex flex-col items-center gap-1">
+            <div className={`w-1.5 h-1.5 rounded-full ${isDarkMode ? "bg-cyan-400 shadow-[0_0_6px_#22d3ee]" : "bg-blue-500 shadow-[0_0_6px_#3b82f6]"}`} />
+            <div
+              className={`w-[2px] h-6 rounded-full ${
+                isDarkMode
+                  ? "bg-gradient-to-b from-cyan-400/80 via-indigo-500/50 to-transparent"
+                  : "bg-gradient-to-b from-blue-500/80 via-indigo-400/40 to-transparent"
+              }`}
+            />
+          </div>
+
+          {/* Futuristic Cyber Action Nodes with Corner Brackets & Holographic Glow */}
+          <div className="flex flex-col items-center gap-3.5">
+            {socialLinks.map((item, idx) => (
+              <div key={idx} className="relative group flex items-center">
+                <motion.a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={item.label}
+                  whileHover={{ scale: 1.14, y: -2 }}
+                  whileTap={{ scale: 0.92 }}
+                  transition={{ type: "spring", stiffness: 450, damping: 22 }}
+                  className={`w-11 h-11 rounded-xl border backdrop-blur-xl flex items-center justify-center transition-all duration-300 cursor-pointer select-none relative overflow-hidden ${
+                    isDarkMode
+                      ? "border-slate-800/90 bg-slate-950/80 text-slate-300 shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
+                      : "border-slate-200/90 bg-white/90 text-slate-700 shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
+                  } ${item.hoverClass}`}
+                >
+                  {/* Futuristic Cyber Corner Brackets */}
+                  <span className="absolute top-1 left-1 w-1.5 h-1.5 border-t border-l border-cyan-400/0 group-hover:border-cyan-400/90 transition-colors duration-300 pointer-events-none" />
+                  <span className="absolute top-1 right-1 w-1.5 h-1.5 border-t border-r border-cyan-400/0 group-hover:border-cyan-400/90 transition-colors duration-300 pointer-events-none" />
+                  <span className="absolute bottom-1 left-1 w-1.5 h-1.5 border-b border-l border-cyan-400/0 group-hover:border-cyan-400/90 transition-colors duration-300 pointer-events-none" />
+                  <span className="absolute bottom-1 right-1 w-1.5 h-1.5 border-b border-r border-cyan-400/0 group-hover:border-cyan-400/90 transition-colors duration-300 pointer-events-none" />
+
+                  {/* Diagonal Holographic Sweep */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/0 via-cyan-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+                  {/* Icon */}
+                  <item.icon size={18} className="relative z-10 transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_currentColor]" />
+                </motion.a>
+
+                {/* Futuristic HUD Glass Tooltip (Slides Out Smoothly to Right on Hover) */}
+                <div className="absolute left-full ml-4 pointer-events-none opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-250 ease-out z-50">
+                  <div
+                    className={`px-3.5 py-2.5 rounded-xl border backdrop-blur-2xl shadow-2xl flex items-center gap-3 whitespace-nowrap relative ${
+                      isDarkMode
+                        ? "bg-slate-950/95 border-cyan-500/40 text-white shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_15px_rgba(6,182,212,0.15)]"
+                        : "bg-white/95 border-blue-400/40 text-slate-900 shadow-[0_10px_30px_rgba(0,0,0,0.1),0_0_12px_rgba(59,130,246,0.15)]"
+                    }`}
+                  >
+                    {/* Tooltip Corner Accents */}
+                    <span className="absolute top-1 left-1 w-1 h-1 border-t border-l border-cyan-400/80" />
+                    <span className="absolute bottom-1 right-1 w-1 h-1 border-b border-r border-cyan-400/80" />
+
+                    <div className="flex flex-col text-left">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-1.5 h-1.5 rounded-full ${item.badgeBg} animate-pulse`} />
+                        <span className="font-grotesk text-xs font-black uppercase tracking-wider">
+                          {item.label}
+                        </span>
+                        <span className="font-mono-tech text-[8px] font-bold text-cyan-400/80 uppercase px-1 rounded bg-cyan-500/10">
+                          LINK
+                        </span>
+                      </div>
+                      <span className={`text-[10px] font-mono leading-tight ${isDarkMode ? "text-slate-400" : "text-slate-500"}`}>
+                        {item.subtitle}
+                      </span>
+                    </div>
+                    <ArrowUpRight size={14} className="text-cyan-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </div>
+                </div>
               </div>
-            </a>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {/* Bottom Futuristic Laser Line with Traveling Light Pulse */}
+          <div className="flex flex-col items-center gap-1.5">
+            <div
+              className={`w-[2px] h-14 rounded-full laser-rail ${
+                isDarkMode
+                  ? "bg-slate-800/90 shadow-[0_0_8px_rgba(56,189,248,0.2)]"
+                  : "bg-slate-300/90 shadow-[0_0_6px_rgba(2,132,199,0.2)]"
+              }`}
+            />
+            <span className={`text-[8px] font-mono-tech tracking-widest uppercase select-none ${isDarkMode ? "text-cyan-400/60" : "text-blue-500/70"}`}>
+              COMMS
+            </span>
+          </div>
+        </motion.div>
       </aside>
 
       {/* MAIN HERO LAYOUT */}

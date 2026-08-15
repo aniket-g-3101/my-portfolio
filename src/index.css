@@ -118,6 +118,51 @@
   }
 }
 
+@keyframes laserSweep {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(220%);
+    opacity: 0;
+  }
+}
+
+@keyframes cyberPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+.laser-rail {
+  position: relative;
+  overflow: hidden;
+}
+
+.laser-rail::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: linear-gradient(180deg, transparent, #38bdf8 60%, #06b6d4, transparent);
+  box-shadow: 0 0 12px #38bdf8;
+  animation: laserSweep 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
 /* ── WebKit Anti-Flicker & Transparent Body for WebGL Dynamic Background ── */
 html {
   scroll-behavior: auto !important;

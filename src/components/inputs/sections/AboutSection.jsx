@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { useTheme } from "../../../context/ThemeContext";
-import PROFILE_PIC from "../../../assets/images/me.jpg";
+import PROFILE_PIC from "../../../assets/images/me.webp";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 

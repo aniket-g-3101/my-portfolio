@@ -43,6 +43,16 @@ export default function ProjectsSection() {
     };
   }, [activeIdx]);
 
+  // Preload all project images in memory on mount for instantaneous switching
+  useEffect(() => {
+    PROJECTS.forEach((proj) => {
+      if (proj.image) {
+        const img = new Image();
+        img.src = proj.image;
+      }
+    });
+  }, []);
+
   // Track viewport visibility to pause auto-cycle when offscreen
   useEffect(() => {
     const el = sectionRef.current;
@@ -344,6 +354,8 @@ export default function ProjectsSection() {
                           <img
                             src={activeProject.image}
                             alt={activeProject.title}
+                            loading="eager"
+                            decoding="async"
                             className="w-full h-full object-cover object-center transition-transform duration-700 group-hover/img:scale-105"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-end p-3 pointer-events-none">

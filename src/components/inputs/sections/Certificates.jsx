@@ -62,6 +62,16 @@ export default function Certificates() {
   const sectionRef = useRef(null);
   const listContainerRef = useRef(null);
 
+  // Preload all certificate WebP images into browser memory on mount
+  useEffect(() => {
+    CERTIFICATES.forEach((cert) => {
+      if (cert.image) {
+        const img = new Image();
+        img.src = cert.image;
+      }
+    });
+  }, []);
+
   // Track viewport visibility to pause auto-cycle when offscreen
   useEffect(() => {
     const el = sectionRef.current;
@@ -408,6 +418,8 @@ export default function Certificates() {
                         <img
                           src={activeCert.image}
                           alt={activeCert.title}
+                          loading="eager"
+                          decoding="async"
                           className="w-full h-full object-contain object-center transition-transform duration-300 group-hover:scale-105 p-1"
                         />
                         {/* Hover Overlay Hint */}

@@ -25,20 +25,20 @@ import {
 
 import { FiGithub, FiLinkedin, FiTwitter } from "react-icons/fi";
 
-// ===================== IMAGE IMPORTS =====================
-import PROJECT_IMG_1 from "../assets/images/chat-app.png";
-import PROJECT_IMG_2 from "../assets/images/mysql-manager.png";
-import PROJECT_IMG_3 from "../assets/images/profile-card.png";
-import PROJECT_IMG_4 from "../assets/images/weather-app.png";
-import PROJECT_IMG_5 from "../assets/images/Portfolio.png";
-import PROJECT_IMG_6 from "../assets/images/voice-to-code.png";
-import PROJECT_IMG_7 from "../assets/images/luxstay.png";
-import PROJECT_IMG_8 from "../assets/images/contact-manager.png";
-import PROJECT_IMG_9 from "../assets/images/home-rental.png";
-import PROJECT_IMG_10 from "../assets/images/room-design.png";
-import PROJECT_IMG_11 from "../assets/images/fitclub.png";
-import PROJECT_IMG_12 from "../assets/images/voting-system.png";
-import PROJECT_IMG_13 from "../assets/images/exam-system.png";
+// ===================== IMAGE IMPORTS (OPTIMIZED WEBP) =====================
+import PROJECT_IMG_1 from "../assets/images/chat-app.webp";
+import PROJECT_IMG_2 from "../assets/images/mysql-manager.webp";
+import PROJECT_IMG_3 from "../assets/images/profile-card.webp";
+import PROJECT_IMG_4 from "../assets/images/weather-app.webp";
+import PROJECT_IMG_5 from "../assets/images/Portfolio.webp";
+import PROJECT_IMG_6 from "../assets/images/voice-to-code.webp";
+import PROJECT_IMG_7 from "../assets/images/luxstay.webp";
+import PROJECT_IMG_8 from "../assets/images/contact-manager.webp";
+import PROJECT_IMG_9 from "../assets/images/home-rental.webp";
+import PROJECT_IMG_10 from "../assets/images/room-design.webp";
+import PROJECT_IMG_11 from "../assets/images/fitclub.webp";
+import PROJECT_IMG_12 from "../assets/images/voting-system.webp";
+import PROJECT_IMG_13 from "../assets/images/exam-system.webp";
 
 // ===================== TECH STACK =====================
 export const TECH_STACK = [
@@ -62,29 +62,29 @@ export const STATS = [
   { number: "10+", label: "Technologies" },
 ];
 
-// ===================== CERTIFICATES =====================
-import CERT_1 from "../assets/Certificates/oracle.png";
-import CERT_2 from "../assets/Certificates/AWS-1.png";
-import CERT_3 from "../assets/Certificates/Simpli-Learn-1.png";
-import CERT_4 from "../assets/Certificates/AWS-3.png";
-import CERT_5 from "../assets/Certificates/Forage-DV.png";
-import CERT_6 from "../assets/Certificates/edurika.png";
-import CERT_7 from "../assets/Certificates/AWS-2.png";
-import CERT_8 from "../assets/Certificates/HackerRank-CSS.png";
-import CERT_9 from "../assets/Certificates/HackerRank-Frontend.png";
-import CERT_10 from "../assets/Certificates/HP-1.png";
-import CERT_11 from "../assets/Certificates/HP-2.png";
-import CERT_12 from "../assets/Certificates/Knowledge-Gate.png";
-import CERT_13 from "../assets/Certificates/AI.png";
-import CERT_14 from "../assets/Certificates/powerBi.png";
-import CERT_15 from "../assets/Certificates/be10x.png";
-import CERT_16 from "../assets/Certificates/Simpli-Learn-2.png";
-import CERT_17 from "../assets/Certificates/skyskill.png";
-import CERT_18 from "../assets/Certificates/Unified-Mentor.png";
-import CERT_19 from "../assets/Certificates/Deloitte.png";
-import CERT_20 from "../assets/Certificates/Communication-Skills.png";
-import CERT_21 from "../assets/Certificates/Interview-Skills.png";
-import CERT_22 from "../assets/Certificates/Resume-and-Cover-letter.png";
+// ===================== CERTIFICATES (OPTIMIZED WEBP) =====================
+import CERT_1 from "../assets/Certificates/oracle.webp";
+import CERT_2 from "../assets/Certificates/AWS-1.webp";
+import CERT_3 from "../assets/Certificates/Simpli-Learn-1.webp";
+import CERT_4 from "../assets/Certificates/AWS-3.webp";
+import CERT_5 from "../assets/Certificates/Forage-DV.webp";
+import CERT_6 from "../assets/Certificates/edurika.webp";
+import CERT_7 from "../assets/Certificates/AWS-2.webp";
+import CERT_8 from "../assets/Certificates/HackerRank-CSS.webp";
+import CERT_9 from "../assets/Certificates/HackerRank-Frontend.webp";
+import CERT_10 from "../assets/Certificates/HP-1.webp";
+import CERT_11 from "../assets/Certificates/HP-2.webp";
+import CERT_12 from "../assets/Certificates/Knowledge-Gate.webp";
+import CERT_13 from "../assets/Certificates/AI.webp";
+import CERT_14 from "../assets/Certificates/powerBi.webp";
+import CERT_15 from "../assets/Certificates/be10x.webp";
+import CERT_16 from "../assets/Certificates/Simpli-Learn-2.webp";
+import CERT_17 from "../assets/Certificates/skyskill.webp";
+import CERT_18 from "../assets/Certificates/Unified-Mentor.webp";
+import CERT_19 from "../assets/Certificates/Deloitte.webp";
+import CERT_20 from "../assets/Certificates/Communication-Skills.webp";
+import CERT_21 from "../assets/Certificates/Interview-Skills.webp";
+import CERT_22 from "../assets/Certificates/Resume-and-Cover-letter.webp";
 
 export const CERTIFICATES = [
   {
