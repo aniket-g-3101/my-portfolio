@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../../context/ThemeContext";
-import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
 import {
   Lightbulb,
   Palette,
@@ -10,12 +8,18 @@ import {
   Code2,
   Database,
   Rocket,
-  Layers,
-  Zap,
-  MousePointer2,
   Play,
   Pause,
+  MousePointer2,
 } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import { getAnimationConfig, getMotionPreferences } from "../../../lib/gsap/animationConfig";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 /* ============================================================
    WORKFLOW STAGES DATA SPECIFICATION
@@ -149,7 +153,6 @@ const EASE = [0.16, 1, 0.3, 1];
 
 export default function SkillsSection() {
   const { isDarkMode } = useTheme();
-  const prefersReducedMotion = useReducedMotion();
 
   const [activeStageId, setActiveStageId] = useState("design");
   const [isAutoPlay, setIsAutoPlay] = useState(true);
@@ -173,32 +176,6 @@ export default function SkillsSection() {
     return () => observer.disconnect();
   }, []);
 
-  // GSAP ScrollTrigger Entrance Animation
-  useGSAP(
-    () => {
-      if (prefersReducedMotion) return;
-
-      gsap.fromTo(
-        ".skills-reveal-node",
-        { y: 35, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.85,
-          stagger: 0.12,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top 80%",
-            toggleActions: "play none none none",
-            once: true,
-          },
-        }
-      );
-    },
-    { scope: containerRef, dependencies: [prefersReducedMotion] }
-  );
-
   /* Auto-Cycle Through Stages (3.5s interval) - only active when section is in view */
   useEffect(() => {
     if (!isAutoPlay || !isInView) return;
@@ -214,6 +191,117 @@ export default function SkillsSection() {
 
     return () => clearInterval(timer);
   }, [isAutoPlay, isInView]);
+
+  /* ── Master GSAP Circular Hub Diagram Scroll Entrance (Scale + Blur Settle & Hub Assembly) ── */
+  useGSAP(
+    () => {
+      const { isReducedMotion, isMobile } = getMotionPreferences();
+      const config = getAnimationConfig();
+
+      if (isReducedMotion) {
+        gsap.set(
+          [
+            ".skills-header-tag",
+            ".skills-title-block",
+            ".skills-mobile-selector",
+            ".hub-center-node",
+            ".hub-orbit-ring",
+            ".hub-orbit-dot",
+            ".hub-connection-line",
+            ".hub-outer-node",
+            ".skills-info-panel",
+          ],
+          { opacity: 1, scale: 1, x: 0, y: 0, filter: "blur(0px)", clearProps: "all" }
+        );
+        return;
+      }
+
+      // Master Entrance ScrollTrigger Timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 78%",
+          end: "bottom 20%",
+          toggleActions: "play none none none",
+          once: true,
+        },
+        defaults: {
+          ease: config.easing.entrance,
+        },
+      });
+
+      // 1. Header tag lateral slide + Title scale focus settle
+      tl.fromTo(
+        ".skills-header-tag",
+        { xPercent: isMobile ? -5 : -3, opacity: 0 },
+        { xPercent: 0, opacity: 1, duration: config.duration.short, ease: "power2.out" }
+      ).fromTo(
+        ".skills-title-block",
+        { scale: isMobile ? 0.98 : 0.95, filter: "blur(5px)", opacity: 0 },
+        { scale: 1, filter: "blur(0px)", opacity: 1, duration: config.duration.medium, ease: "power3.out" },
+        "-=0.1"
+      );
+
+      if (isMobile) {
+        // Mobile Alternate Entrance: Horizontal Stage Pills + Info Panel
+        tl.fromTo(
+          ".skills-mobile-selector button",
+          { y: 15, opacity: 0 },
+          { y: 0, opacity: 1, duration: config.duration.short, stagger: config.stagger.fast },
+          "-=0.1"
+        ).fromTo(
+          ".skills-info-panel",
+          { y: 20, opacity: 0, filter: "blur(4px)" },
+          { y: 0, opacity: 1, filter: "blur(0px)", duration: config.duration.medium, ease: "power3.out" },
+          "-=0.15"
+        );
+      } else {
+        // Desktop Circular Hub Entrance (Scale + Blur Settle)
+        // 1. Center Circle Emerges with Focus Settle
+        tl.fromTo(
+          ".hub-center-node",
+          { scale: 0.82, filter: "blur(8px)", opacity: 0 },
+          { scale: 1, filter: "blur(0px)", opacity: 1, duration: config.duration.section, ease: "power3.out" },
+          "-=0.2"
+        )
+          // 2. Outer Orbit Ring & Micro-dots emerge
+          .fromTo(
+            ".hub-orbit-ring",
+            { scale: 0.75, opacity: 0, transformOrigin: "50% 50%" },
+            { scale: 1, opacity: 1, duration: config.duration.medium, ease: "power2.out" },
+            "-=0.3"
+          )
+          .fromTo(
+            ".hub-orbit-dot",
+            { scale: 0, opacity: 0, transformOrigin: "50% 50%" },
+            { scale: 1, opacity: 0.5, duration: config.duration.short, stagger: config.stagger.micro },
+            "-=0.2"
+          )
+          // 3. Connection Lines draw outward from center to nodes
+          .fromTo(
+            ".hub-connection-line",
+            { opacity: 0, scale: 0.15, transformOrigin: "50% 50%" },
+            { opacity: 1, scale: 1, duration: config.duration.medium, stagger: config.stagger.nodes, ease: "power2.out" },
+            "-=0.25"
+          )
+          // 4. 6 Outer Nodes stagger in with subtle elastic pop
+          .fromTo(
+            ".hub-outer-node",
+            { scale: 0.35, opacity: 0, transformOrigin: "50% 50%" },
+            { scale: 1, opacity: 1, duration: config.duration.medium, stagger: config.stagger.nodes, ease: "back.out(1.4)" },
+            "-=0.3"
+          )
+          // 5. Right column info panel smoothly slides in with lateral wipe
+          .fromTo(
+            ".skills-info-panel",
+            { xPercent: 6, opacity: 0, filter: "blur(6px)" },
+            { xPercent: 0, opacity: 1, filter: "blur(0px)", duration: config.duration.section, ease: config.easing.cinematic },
+            "-=0.4"
+          );
+      }
+    },
+    { scope: containerRef }
+  );
 
   /* Active Stage Lookup */
   const activeStage = useMemo(() => {
@@ -241,7 +329,7 @@ export default function SkillsSection() {
       <div className="max-w-7xl mx-auto relative z-10 w-full flex flex-col space-y-6">
 
         {/* ── TOP HEADER DIVIDER & TAG ── */}
-        <div className="skills-reveal-node flex items-center justify-between border-b border-slate-700/30 dark:border-slate-800/80 pb-3.5">
+        <div className="skills-header-tag flex items-center justify-between border-b border-slate-700/30 dark:border-slate-800/80 pb-3.5">
           {/* Left Tag */}
           <div className="flex items-center gap-3">
             <span className="font-mono-tech text-xs font-semibold tracking-widest text-blue-500">03</span>
@@ -259,12 +347,12 @@ export default function SkillsSection() {
           <button
             onClick={() => setIsAutoPlay(!isAutoPlay)}
             className={`px-3.5 py-1.5 rounded-xl border text-xs font-sans-body font-bold flex items-center gap-1.5 transition-all cursor-pointer select-none ${isAutoPlay
-                ? isDarkMode
-                  ? "bg-blue-600/25 text-blue-400 border-blue-500/40 shadow-sm"
-                  : "bg-blue-50 text-blue-700 border-blue-300 shadow-sm"
-                : isDarkMode
-                  ? "bg-slate-900/80 text-slate-400 border-slate-800 hover:text-white"
-                  : "bg-white text-slate-600 border-slate-200 hover:text-slate-900"
+              ? isDarkMode
+                ? "bg-blue-600/25 text-blue-400 border-blue-500/40 shadow-sm"
+                : "bg-blue-50 text-blue-700 border-blue-300 shadow-sm"
+              : isDarkMode
+                ? "bg-slate-900/80 text-slate-400 border-slate-800 hover:text-white"
+                : "bg-white text-slate-600 border-slate-200 hover:text-slate-900"
               }`}
             title={isAutoPlay ? "Pause Auto Switch" : "Play Auto Switch"}
           >
@@ -274,7 +362,7 @@ export default function SkillsSection() {
         </div>
 
         {/* ── SECTION TITLE & SUBTITLE BELOW THE LINE ── */}
-        <div className="skills-reveal-node text-left space-y-1.5">
+        <div className="skills-title-block text-left space-y-1.5">
           <h2 className="font-display text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight italic uppercase">
             <span className={isDarkMode ? "text-white" : "text-slate-900"}>HOW I </span>
             <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 bg-clip-text text-transparent">
@@ -290,7 +378,7 @@ export default function SkillsSection() {
         </div>
 
         {/* ── MOBILE HORIZONTAL STAGE QUICK SELECTOR (VISIBLE ON MOBILE/TABLET ONLY) ── */}
-        <div className="skills-reveal-node flex lg:hidden overflow-x-auto gap-2 pb-2 mb-2 custom-scrollbar snap-x touch-pan-x pt-2">
+        <div className="skills-mobile-selector flex lg:hidden overflow-x-auto gap-2 pb-2 mb-2 custom-scrollbar snap-x touch-pan-x pt-2">
           {WORKFLOW_STAGES.map((stage) => {
             const isSelected = activeStageId === stage.id;
             const Icon = stage.icon;
@@ -303,12 +391,12 @@ export default function SkillsSection() {
                   setHoveredTool(null);
                 }}
                 className={`flex-shrink-0 snap-start px-3 py-2 rounded-xl border flex items-center gap-2 transition-all duration-200 cursor-pointer ${isSelected
-                    ? isDarkMode
-                      ? "bg-slate-900 border-indigo-400 text-white shadow-md ring-1 ring-indigo-400/40"
-                      : "bg-white border-blue-500 text-slate-950 shadow-md ring-1 ring-blue-500/30"
-                    : isDarkMode
-                      ? "bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200"
-                      : "bg-white/70 border-slate-200 text-slate-600 hover:text-slate-900"
+                  ? isDarkMode
+                    ? "bg-slate-900 border-indigo-400 text-white shadow-md ring-1 ring-indigo-400/40"
+                    : "bg-white border-blue-500 text-slate-950 shadow-md ring-1 ring-blue-500/30"
+                  : isDarkMode
+                    ? "bg-slate-950/60 border-slate-800 text-slate-400 hover:text-slate-200"
+                    : "bg-white/70 border-slate-200 text-slate-600 hover:text-slate-900"
                   }`}
               >
                 <Icon size={14} className={isSelected ? (isDarkMode ? "text-indigo-300" : "text-blue-600") : ""} />
@@ -320,7 +408,7 @@ export default function SkillsSection() {
         </div>
 
         {/* ── MAIN TWO-COLUMN WORKFLOW + INFO PANEL LAYOUT ── */}
-        <div className="skills-reveal-node grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-stretch min-h-[460px] sm:min-h-[520px] pt-1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-stretch min-h-[460px] sm:min-h-[520px] pt-1">
 
           {/* ══════════════════════════════════════════════════════════
               LEFT COLUMN: CIRCULAR HEXAGONAL WORKFLOW WHEEL
@@ -333,6 +421,7 @@ export default function SkillsSection() {
               <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-0">
                 {/* Circular Orbit Track */}
                 <circle
+                  className="hub-orbit-ring"
                   cx="50%"
                   cy="50%"
                   r="42%"
@@ -350,6 +439,7 @@ export default function SkillsSection() {
                   return (
                     <circle
                       key={i}
+                      className="hub-orbit-dot"
                       cx={cx}
                       cy={cy}
                       r="2.5"
@@ -369,6 +459,7 @@ export default function SkillsSection() {
                   return (
                     <line
                       key={st.id}
+                      className="hub-connection-line"
                       x1="50%"
                       y1="50%"
                       x2={x2}
@@ -391,14 +482,14 @@ export default function SkillsSection() {
               </svg>
 
               {/* ── CENTER ENGINE NODE (ANIKET - WITH SOFT GLOW) ── */}
-              <div className="absolute z-20 flex items-center justify-center pointer-events-none">
+              <div className="hub-center-node absolute z-20 flex items-center justify-center pointer-events-none">
                 {/* Soft Glowing Ambient Ring */}
-                <div className="absolute -inset-3 rounded-full bg-gradient-to-tr from-blue-600/20 via-indigo-600/20 to-purple-600/20 blur-xl animate-pulse pointer-events-none" />
+                <div className="hub-ambient-glow absolute -inset-3 rounded-full bg-gradient-to-tr from-blue-600/20 via-indigo-600/20 to-purple-600/20 blur-xl animate-pulse pointer-events-none" />
 
                 <div
                   className={`w-24 h-24 xs:w-28 xs:h-28 sm:w-36 sm:h-36 rounded-full border flex flex-col items-center justify-center text-center p-2 sm:p-3 transition-all duration-500 shadow-[0_0_35px_rgba(99,102,241,0.3)] ring-2 ring-indigo-500/25 relative ${isDarkMode
-                      ? "bg-slate-950/95 border-slate-700 shadow-black/80 text-white"
-                      : "bg-white/95 border-slate-200 shadow-slate-200/80 text-slate-900"
+                    ? "bg-slate-950/95 border-slate-700 shadow-black/80 text-white"
+                    : "bg-white/95 border-slate-200 shadow-slate-200/80 text-slate-900"
                     }`}
                 >
                   <span className="font-mono-tech text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-indigo-400 mb-0.5 sm:mb-1">
@@ -436,7 +527,7 @@ export default function SkillsSection() {
                       top: topPos,
                       transform: "translate(-50%, -50%)",
                     }}
-                    className="z-30"
+                    className="hub-outer-node z-30"
                   >
                     <motion.button
                       animate={{
@@ -455,12 +546,12 @@ export default function SkillsSection() {
                         setHoveredTool(null);
                       }}
                       className={`group relative w-16 h-16 xs:w-18 xs:h-18 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl border flex flex-col items-center justify-center p-1.5 sm:p-2 transition-colors duration-300 cursor-pointer ${isSelected
-                          ? isDarkMode
-                            ? "bg-slate-900/95 border-indigo-400 text-white shadow-[0_0_25px_rgba(99,102,241,0.45)] ring-2 ring-indigo-400/40"
-                            : "bg-white border-blue-500 text-slate-950 shadow-[0_0_25px_rgba(59,130,246,0.35)] ring-2 ring-blue-500/30"
-                          : isDarkMode
-                            ? "bg-slate-950/80 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                            : "bg-white/80 border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900"
+                        ? isDarkMode
+                          ? "bg-slate-900/95 border-indigo-400 text-white shadow-[0_0_25px_rgba(99,102,241,0.45)] ring-2 ring-indigo-400/40"
+                          : "bg-white border-blue-500 text-slate-950 shadow-[0_0_25px_rgba(59,130,246,0.35)] ring-2 ring-blue-500/30"
+                        : isDarkMode
+                          ? "bg-slate-950/80 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                          : "bg-white/80 border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900"
                         }`}
                     >
                       {/* Stage Icon */}
@@ -495,11 +586,11 @@ export default function SkillsSection() {
               RIGHT COLUMN: DYNAMIC SELECTED-STAGE INFORMATION PANEL
               (COMPACT RESPONSIVE SIZE)
               ══════════════════════════════════════════════════════════ */}
-          <div className="lg:col-span-6 w-full flex flex-col">
+          <div className="skills-info-panel lg:col-span-6 w-full flex flex-col">
             <div
               className={`p-4 sm:p-8 rounded-3xl border backdrop-blur-md transition-all duration-300 shadow-lg flex flex-col justify-between h-auto min-h-[420px] lg:h-[460px] lg:sm:h-[480px] lg:min-h-[460px] lg:sm:min-h-[480px] lg:max-h-[460px] lg:sm:max-h-[480px] ${isDarkMode
-                  ? "bg-transparent border-slate-800/80 text-slate-100"
-                  : "bg-transparent border-slate-200/80 text-slate-900"
+                ? "bg-transparent border-slate-800/80 text-slate-100"
+                : "bg-transparent border-slate-200/80 text-slate-900"
                 }`}
             >
               <AnimatePresence mode="wait">
@@ -568,21 +659,21 @@ export default function SkillsSection() {
                             onMouseLeave={() => setHoveredTool(null)}
                             onClick={() => setHoveredTool(isHovered ? null : tool)}
                             className={`px-1.5 rounded-lg flex items-center gap-2 transition-colors duration-150 cursor-pointer select-none h-[34px] ${isHovered
-                                ? isDarkMode
-                                  ? "bg-blue-600/10 text-white"
-                                  : "bg-blue-50/80 text-blue-900"
-                                : isDarkMode
-                                  ? "text-slate-200 hover:text-white"
-                                  : "text-slate-800 hover:text-slate-950"
+                              ? isDarkMode
+                                ? "bg-blue-600/10 text-white"
+                                : "bg-blue-50/80 text-blue-900"
+                              : isDarkMode
+                                ? "text-slate-200 hover:text-white"
+                                : "text-slate-800 hover:text-slate-950"
                               }`}
                           >
                             {/* Small Vertical Accent Line */}
                             <div
                               className={`w-[3px] h-3.5 rounded-full flex-shrink-0 transition-colors duration-200 ${isHovered
-                                  ? "bg-gradient-to-b from-blue-400 to-indigo-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"
-                                  : isDarkMode
-                                    ? "bg-blue-500/60"
-                                    : "bg-blue-600"
+                                ? "bg-gradient-to-b from-blue-400 to-indigo-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]"
+                                : isDarkMode
+                                  ? "bg-blue-500/60"
+                                  : "bg-blue-600"
                                 }`}
                             />
 
@@ -599,12 +690,12 @@ export default function SkillsSection() {
                   {/* Tool Preview & Hover Description Box (Fixed Height h-[52px]) */}
                   <div
                     className={`p-2 rounded-2xl border transition-colors duration-200 h-[52px] min-h-[52px] max-h-[52px] flex items-center mt-3 sm:mt-0 ${hoveredTool
-                        ? isDarkMode
-                          ? "bg-blue-950/20 border-blue-500/30 text-slate-200"
-                          : "bg-blue-50/60 border-blue-200 text-blue-950"
-                        : isDarkMode
-                          ? "bg-slate-900/30 border-slate-800/50 text-slate-400"
-                          : "bg-slate-50/60 border-slate-200/80 text-slate-500"
+                      ? isDarkMode
+                        ? "bg-blue-950/20 border-blue-500/30 text-slate-200"
+                        : "bg-blue-50/60 border-blue-200 text-blue-950"
+                      : isDarkMode
+                        ? "bg-slate-900/30 border-slate-800/50 text-slate-400"
+                        : "bg-slate-50/60 border-slate-200/80 text-slate-500"
                       }`}
                   >
                     {hoveredTool ? (

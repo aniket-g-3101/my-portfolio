@@ -1,8 +1,6 @@
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../../context/ThemeContext";
 import { PROJECTS } from "../../../utils/data";
-import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
 import {
   ExternalLink,
   Github,
@@ -18,6 +16,14 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { useState, useEffect, useRef, useMemo } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import { getAnimationConfig, getMotionPreferences } from "../../../lib/gsap/animationConfig";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // 5 Key Feature icons
 const FEATURE_ICONS = [Zap, ShieldCheck, Cpu, Layers, Globe];
@@ -26,7 +32,6 @@ const EASE = [0.16, 1, 0.3, 1];
 
 export default function ProjectsSection() {
   const { isDarkMode } = useTheme();
-  const prefersReducedMotion = useReducedMotion();
   const [activeIdx, setActiveIdx] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [isInView, setIsInView] = useState(false);
@@ -68,32 +73,6 @@ export default function ProjectsSection() {
     return () => observer.disconnect();
   }, []);
 
-  // GSAP ScrollTrigger Entrance Animation
-  useGSAP(
-    () => {
-      if (prefersReducedMotion) return;
-
-      gsap.fromTo(
-        ".projects-reveal-node",
-        { y: 35, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.85,
-          stagger: 0.12,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 80%",
-            toggleActions: "play none none none",
-            once: true,
-          },
-        }
-      );
-    },
-    { scope: sectionRef, dependencies: [prefersReducedMotion] }
-  );
-
   /* ── Auto-Cycle Through Projects (3.5s interval) - only active when section is in view ── */
   useEffect(() => {
     if (!isAutoPlay || !isInView) return;
@@ -127,6 +106,102 @@ export default function ProjectsSection() {
     }
   }, [activeIdx]);
 
+  /* ── Master GSAP Projects Section Entrance ── */
+  /* ── Master GSAP Projects Horizontal Curtain Slide Entrance ── */
+  useGSAP(
+    () => {
+      const { isReducedMotion, isMobile } = getMotionPreferences();
+      const config = getAnimationConfig();
+
+      if (isReducedMotion) {
+        gsap.set(
+          [
+            ".projects-header-tag",
+            ".projects-title-block",
+            ".projects-list-col",
+            ".project-list-card",
+            ".projects-showcase-col",
+          ],
+          { opacity: 1, y: 0, x: 0, scale: 1, filter: "blur(0px)", clearProps: "all" }
+        );
+        return;
+      }
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 78%",
+          end: "bottom 20%",
+          toggleActions: "play none none none",
+          once: true,
+        },
+        defaults: {
+          ease: config.easing.entrance,
+        },
+      });
+
+      // 1. Header tag — lateral curtain wipe from the right edge
+      tl.fromTo(
+        ".projects-header-tag",
+        { clipPath: "inset(0 100% 0 0)", opacity: 0.4 },
+        { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: config.duration.short, ease: "power2.out" }
+      )
+        // 2. Title block — masked rise with soft depth blur settle
+        .fromTo(
+          ".projects-title-block",
+          { clipPath: "inset(100% 0 0 0)", scale: isMobile ? 0.99 : 0.97, filter: isMobile ? "none" : "blur(6px)" },
+          { clipPath: "inset(0% 0 0 0)", scale: 1, filter: "blur(0px)", duration: config.duration.medium, ease: "power3.out" },
+          "-=0.12"
+        )
+        // 3. Left list column — lateral curtain slide
+        .fromTo(
+          ".projects-list-col",
+          { clipPath: "inset(0 100% 0 0)", xPercent: isMobile ? 0 : -4, opacity: 0 },
+          { clipPath: "inset(0 0% 0 0)", xPercent: 0, opacity: 1, duration: config.duration.section, ease: "power3.out" },
+          "-=0.15"
+        )
+        // 4. Project cards — cascading rise with soft depth blur
+        .fromTo(
+          ".project-list-card",
+          { opacity: 0, x: isMobile ? 0 : -14, y: isMobile ? 12 : 20, filter: isMobile ? "none" : "blur(4px)" },
+          {
+            opacity: 1,
+            x: 0,
+            y: 0,
+            filter: "blur(0px)",
+            duration: config.duration.medium,
+            stagger: isMobile ? 0.03 : 0.05,
+            ease: "power3.out",
+          },
+          "-=0.35"
+        )
+        // 5. Showcase column — flips in from the right with perspective depth
+        .fromTo(
+          ".projects-showcase-col",
+          {
+            xPercent: isMobile ? 0 : 3,
+            scale: isMobile ? 0.99 : 0.95,
+            rotateY: isMobile ? 0 : -8,
+            transformPerspective: 1100,
+            transformOrigin: "right center",
+            opacity: 0,
+            filter: isMobile ? "none" : "blur(5px)",
+          },
+          {
+            xPercent: 0,
+            scale: 1,
+            rotateY: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: config.duration.section,
+            ease: config.easing.cinematic,
+          },
+          "-=0.4"
+        );
+    },
+    { scope: sectionRef }
+  );
+
   return (
     <section
       id="work"
@@ -149,7 +224,7 @@ export default function ProjectsSection() {
 
       <div className="max-w-7xl mx-auto relative z-10 w-full space-y-5">
         {/* ── TOP HEADER DIVIDER & AUTO-PLAY BUTTON ── */}
-        <div className="projects-reveal-node flex items-center justify-between border-b border-slate-700/30 dark:border-slate-800/80 pb-3">
+        <div className="projects-header-tag flex items-center justify-between border-b border-slate-700/30 dark:border-slate-800/80 pb-3">
           {/* Left Header Tag */}
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold tracking-widest text-blue-500">05</span>
@@ -184,7 +259,7 @@ export default function ProjectsSection() {
         </div>
 
         {/* ── SECTION TITLE & SUBTITLE ── */}
-        <div className="projects-reveal-node text-left space-y-1">
+        <div className="projects-title-block text-left space-y-1">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight italic uppercase">
             <span className={isDarkMode ? "text-white" : "text-slate-900"}>Ideas Turned Into Real </span>
             <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 bg-clip-text text-transparent">
@@ -204,9 +279,9 @@ export default function ProjectsSection() {
             RESPONSIVE LAYOUT (MATCHING USER WIREFRAME BLUEPRINT):
             [DESKTOP: 2-COLUMN SPLIT (LIST LEFT | SHOWCASE CARD RIGHT)]
             ══════════════════════════════════════════════════════════ */}
-        <div className="projects-reveal-node flex flex-col lg:grid lg:grid-cols-12 gap-5 lg:gap-8 items-start pt-1">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-5 lg:gap-8 items-start pt-1">
           {/* ── LEFT COLUMN: ENRICHED PROJECTS LIST (4 COLS) ── */}
-          <div className="w-full lg:col-span-4 flex flex-col space-y-2">
+          <div className="projects-list-col w-full lg:col-span-4 flex flex-col space-y-2">
             <div className="flex items-center justify-between pb-0.5">
               <span className={`text-xs font-bold uppercase tracking-widest ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}>
                 PROJECT SHOWCASE ({PROJECTS.length})
@@ -232,13 +307,15 @@ export default function ProjectsSection() {
                   <motion.div
                     id={`proj-item-${idx}`}
                     key={project.id}
-                    whileHover={{ scale: 1.01 }}
+                    whileHover={{ scale: 1.015, y: -2 }}
                     whileTap={{ scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    style={{ willChange: "transform" }}
                     onClick={() => {
                       setActiveIdx(idx);
                       setIsAutoPlay(false);
                     }}
-                    className={`min-w-[280px] max-w-[310px] sm:min-w-[330px] lg:min-w-0 lg:max-w-none flex-shrink-0 snap-start p-4 rounded-2xl border flex items-start gap-3.5 transition-all duration-200 cursor-pointer select-none text-left backdrop-blur-md ${
+                    className={`project-list-card min-w-[280px] max-w-[310px] sm:min-w-[330px] lg:min-w-0 lg:max-w-none flex-shrink-0 snap-start p-4 rounded-2xl border flex items-start gap-3.5 transition-all duration-200 cursor-pointer select-none text-left backdrop-blur-md ${
                       isSelected
                         ? isDarkMode
                           ? "bg-slate-900/95 border-indigo-400 text-white shadow-[0_0_24px_rgba(99,102,241,0.35)] ring-1.5 ring-indigo-400/50"
@@ -291,17 +368,18 @@ export default function ProjectsSection() {
                       {/* Tech Stack Pills (List View) */}
                       <div className="flex flex-wrap gap-1.5 pt-1.5">
                         {project.tags.slice(0, 4).map((tag, tIdx) => (
-                          <span
+                          <motion.span
                             key={tIdx}
+                            whileHover={{ y: -1, scale: 1.03 }}
                             className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 border backdrop-blur-md transition-colors ${
                               isDarkMode
-                                ? "bg-transparent border-slate-700/60 text-slate-200"
-                                : "bg-transparent border-slate-300/70 text-slate-800"
+                                ? "bg-transparent border-slate-700/60 text-slate-200 hover:border-blue-400/50"
+                                : "bg-transparent border-slate-300/70 text-slate-800 hover:border-blue-500/40"
                             }`}
                           >
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
                             <span>{tag}</span>
-                          </span>
+                          </motion.span>
                         ))}
                         {project.tags.length > 4 && (
                           <span className={`px-2 py-1 rounded-lg text-[11px] font-mono font-bold opacity-80 ${
@@ -319,7 +397,7 @@ export default function ProjectsSection() {
           </div>
 
           {/* ── RIGHT COLUMN: SHOWCASE CARD (FULLY TRANSPARENT WITH SOFT BLUR) ── */}
-          <div className="w-full lg:col-span-8 flex flex-col h-auto">
+          <div className="projects-showcase-col w-full lg:col-span-8 flex flex-col h-auto">
             <div
               className={`p-5 sm:p-7 rounded-3xl border backdrop-blur-xl transition-all duration-300 shadow-2xl flex flex-col justify-start h-auto ${
                 isDarkMode
@@ -454,17 +532,19 @@ export default function ProjectsSection() {
                       </h5>
                       <div className="flex flex-wrap gap-2">
                         {activeProject.tags.map((tag, idx) => (
-                          <span
+                          <motion.span
                             key={idx}
-                            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-[13px] font-semibold flex items-center gap-2 border backdrop-blur-md transition-all duration-300 ${
+                            whileHover={{ y: -1.5, scale: 1.02 }}
+                            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                            className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-[13px] font-semibold flex items-center gap-2 border backdrop-blur-md transition-colors duration-200 cursor-default select-none ${
                               isDarkMode
-                                ? "bg-transparent border-slate-700/60 text-slate-100 hover:text-white hover:border-blue-400/60 hover:bg-slate-900/20 shadow-xs"
-                                : "bg-transparent border-slate-300/70 text-slate-800 hover:text-slate-950 hover:border-blue-500/50 hover:bg-white/30 shadow-xs"
+                                ? "bg-transparent border-slate-700/60 text-slate-100 hover:text-white hover:border-blue-400/60 hover:bg-slate-900/40 shadow-xs"
+                                : "bg-transparent border-slate-300/70 text-slate-800 hover:text-slate-950 hover:border-blue-500/50 hover:bg-white/50 shadow-xs"
                             }`}
                           >
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0 animate-pulse" />
                             <span>{tag}</span>
-                          </span>
+                          </motion.span>
                         ))}
                       </div>
                     </div>
@@ -486,12 +566,14 @@ export default function ProjectsSection() {
                         ).map((feat, fIdx) => {
                           const FeatIcon = FEATURE_ICONS[fIdx] || CheckCircle2;
                           return (
-                            <div
+                            <motion.div
                               key={fIdx}
-                              className={`p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl border flex flex-col justify-between transition-all duration-200 backdrop-blur-md ${
+                              whileHover={{ y: -2, scale: 1.02 }}
+                              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                              className={`p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl border flex flex-col justify-between transition-colors duration-200 backdrop-blur-md cursor-default select-none ${
                                 isDarkMode
-                                  ? "bg-slate-900/60 border-slate-700/80 hover:border-blue-400/50 shadow-xs"
-                                  : "bg-white/90 border-slate-200/90 hover:border-blue-300 shadow-xs"
+                                  ? "bg-slate-900/60 border-slate-700/80 hover:border-blue-400/50 hover:bg-slate-900/90 shadow-xs"
+                                  : "bg-white/90 border-slate-200/90 hover:border-blue-300 hover:bg-white shadow-xs"
                               }`}
                             >
                               <div className="flex items-center justify-between mb-0.5 sm:mb-1">
@@ -512,7 +594,7 @@ export default function ProjectsSection() {
                               }`}>
                                 {feat.desc}
                               </div>
-                            </div>
+                            </motion.div>
                           );
                         })}
                       </div>

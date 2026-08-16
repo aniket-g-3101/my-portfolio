@@ -24,7 +24,13 @@ import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { useTheme } from "../../../context/ThemeContext";
 import PROFILE_PIC from "../../../assets/images/me.webp";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { getAnimationConfig, getMotionPreferences } from "../../../lib/gsap/animationConfig";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 /* ─── Expanded Tabs Specification (Without Numbers) ─── */
 const CHAPTER_ITEMS = [
@@ -201,6 +207,15 @@ const springTransition = {
   duration: 0.4,
 };
 
+/* ── Premium Chapter Stage Reveal (masked wipe + blur, no y-drift entrance) ── */
+const stageVariants = {
+  initial: { opacity: 0, y: 16, clipPath: "inset(0 0 100% 0)", filter: "blur(6px)" },
+  animate: { opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)", filter: "blur(0px)" },
+  exit: { opacity: 0, y: -16, clipPath: "inset(100% 0 0 0)", filter: "blur(6px)" },
+};
+
+const stageTransition = { duration: 0.5, ease: [0.16, 1, 0.3, 1] };
+
 export default function AboutSection() {
   const { isDarkMode } = useTheme();
   const prefersReducedMotion = useReducedMotion();
@@ -232,32 +247,6 @@ export default function AboutSection() {
     return () => observer.disconnect();
   }, []);
 
-  // GSAP ScrollTrigger Entrance Animation
-  useGSAP(
-    () => {
-      if (prefersReducedMotion) return;
-
-      gsap.fromTo(
-        ".about-reveal-node",
-        { y: 35, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.85,
-          stagger: 0.12,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 80%",
-            toggleActions: "play none none none",
-            once: true,
-          },
-        }
-      );
-    },
-    { scope: sectionRef, dependencies: [prefersReducedMotion] }
-  );
-
   /* Auto play tab timer (3s interval) - only active when section is in view */
   useEffect(() => {
     if (!isAutoPlay || !isInView) return;
@@ -288,6 +277,71 @@ export default function AboutSection() {
     return () => clearInterval(timer);
   }, [activeChapter, isInView]);
 
+  /* ── Master GSAP About Narrative Entrance (Clip-Path Wipe & Lateral Expand) ── */
+  useGSAP(
+    () => {
+      const { isReducedMotion, isMobile } = getMotionPreferences();
+      const config = getAnimationConfig();
+
+      if (isReducedMotion) {
+        gsap.set([".about-header-tag", ".about-nav-bar", ".about-content-panel"], {
+          opacity: 1,
+          y: 0,
+          x: 0,
+          scale: 1,
+          scaleX: 1,
+          clipPath: "inset(0 0 0% 0)",
+          clearProps: "all",
+        });
+        return;
+      }
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 75%",
+          end: "bottom 20%",
+          toggleActions: "play reverse play reverse",
+        },
+        defaults: {
+          ease: config.easing.entrance,
+        },
+      });
+
+      // 1. Header tag lateral slide
+      tl.fromTo(
+        ".about-header-tag",
+        { xPercent: isMobile ? -6 : -4, opacity: 0 },
+        { xPercent: 0, opacity: 1, duration: config.duration.short, ease: "power2.out" }
+      )
+        // 2. Chapter tabs bar horizontal scale-in expansion
+        .fromTo(
+          ".about-nav-bar",
+          { scaleX: isMobile ? 0.95 : 0.88, opacity: 0, transformOrigin: "50% 50%" },
+          { scaleX: 1, opacity: 1, duration: config.duration.medium, ease: "power3.out" },
+          "-=0.1"
+        )
+        // 3. Narrative main panel vertical clip-path wipe reveal
+        .fromTo(
+          ".about-content-panel",
+          {
+            clipPath: isMobile ? "inset(0 0 40% 0)" : "inset(0 0 100% 0)",
+            y: isMobile ? 15 : 25,
+            opacity: 0,
+          },
+          {
+            clipPath: "inset(0 0 0% 0)",
+            y: 0,
+            opacity: 1,
+            duration: config.duration.section,
+            ease: "power4.inOut",
+          },
+          "-=0.25"
+        );
+    },
+    { scope: sectionRef }
+  );
+
   const activeExp = EXPERIENCES[activeExpIdx];
   const activePillar =
     WHAT_CHANGED_PILLARS.find((p) => p.id === activePillarId) ||
@@ -317,7 +371,7 @@ export default function AboutSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full space-y-6">
 
         {/* ── TOP HEADER DIVIDER & TAG ── */}
-        <div className="about-reveal-node flex items-center justify-between border-b border-slate-700/30 dark:border-slate-800/80 pb-3.5">
+        <div className="about-header-tag flex items-center justify-between border-b border-slate-700/30 dark:border-slate-800/80 pb-3.5">
           {/* Left Dossier Tag */}
           <div className="flex items-center gap-3">
             <span className="font-mono-tech text-xs font-semibold tracking-widest text-blue-500">02</span>
@@ -350,7 +404,7 @@ export default function AboutSection() {
         </div>
 
         {/* ── EXPANDING TABS MENU (AT LEFT CORNER BELOW THE LINE) ── */}
-        <div className="about-reveal-node flex items-center justify-start pt-1">
+        <div className="about-nav-bar flex items-center justify-start pt-1">
           <div
             className={`flex items-center gap-1 p-1 rounded-2xl border backdrop-blur-xl shadow-md overflow-x-auto max-w-full scrollbar-hide touch-pan-x ${isDarkMode
               ? "bg-slate-950/60 border-white/10 shadow-black/40"
@@ -411,7 +465,7 @@ export default function AboutSection() {
         </div>
 
         {/* ── STAGE DISPLAY CONTAINER ── */}
-        <div className="about-reveal-node w-full relative min-h-[440px]">
+        <div className="about-content-panel w-full relative min-h-[440px]">
           <AnimatePresence mode="wait">
 
             {/* ══════════════════════════════════════════════════════════

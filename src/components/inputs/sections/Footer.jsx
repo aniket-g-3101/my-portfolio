@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowUpRight,
   Copy,
@@ -16,7 +16,13 @@ import { useTheme } from "../../../context/ThemeContext";
 import Resume from "../../../assets/Resume/Aniket_Gavali_Resume.pdf";
 import { useLenisContext } from "../../../context/LenisContext";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { getAnimationConfig, getMotionPreferences } from "../../../lib/gsap/animationConfig";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 /* ============================================================
    INTERACTIVE CANVAS GLOBE - PURE ELECTRIC CYAN & SKY BLUE GLOW
@@ -481,36 +487,9 @@ function AnimatedGlobe({ isDarkMode }) {
    ============================================================ */
 export default function FooterSection() {
   const { isDarkMode } = useTheme();
-  const prefersReducedMotion = useReducedMotion();
   const lenisRef = useLenisContext();
   const [copiedEmail, setCopiedEmail] = useState(false);
   const footerRef = useRef(null);
-
-  // GSAP ScrollTrigger Entrance Animation
-  useGSAP(
-    () => {
-      if (prefersReducedMotion) return;
-
-      gsap.fromTo(
-        ".footer-reveal-node",
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.12,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: "top 85%",
-            toggleActions: "play none none none",
-            once: true,
-          },
-        }
-      );
-    },
-    { scope: footerRef, dependencies: [prefersReducedMotion] }
-  );
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText("aniket.g.dev@gmail.com");
@@ -526,6 +505,69 @@ export default function FooterSection() {
     }
   };
 
+  /* ── Master GSAP Footer Section Entrance (Line Draw & Globe Focus Settle) ── */
+  useGSAP(
+    () => {
+      const { isReducedMotion, isMobile } = getMotionPreferences();
+      const config = getAnimationConfig();
+
+      if (isReducedMotion) {
+        gsap.set(
+          [
+            ".footer-divider-line",
+            ".footer-connect-card",
+            ".footer-globe-wrapper",
+            ".footer-bottom-row",
+          ],
+          { opacity: 1, y: 0, x: 0, scale: 1, scaleX: 1, filter: "blur(0px)", clearProps: "all" }
+        );
+        return;
+      }
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: footerRef.current,
+          start: "top 80%",
+          end: "bottom 5%",
+          toggleActions: "play none none none",
+          once: true,
+        },
+        defaults: {
+          ease: config.easing.entrance,
+        },
+      });
+
+      // 1. Top delineation line expands from center
+      tl.fromTo(
+        ".footer-divider-line",
+        { scaleX: 0, opacity: 0, transformOrigin: "50% 50%" },
+        { scaleX: 1, opacity: 1, duration: config.duration.medium, ease: "power3.out" }
+      )
+        // 2. Left Connection Card slides in with lateral lift
+        .fromTo(
+          ".footer-connect-card",
+          { xPercent: isMobile ? 0 : -5, y: isMobile ? 20 : 30, opacity: 0 },
+          { xPercent: 0, y: 0, opacity: 1, duration: config.duration.section, ease: "power3.out" },
+          "-=0.2"
+        )
+        // 3. Right 3D Globe enters with scale and focus settle
+        .fromTo(
+          ".footer-globe-wrapper",
+          { scale: isMobile ? 0.95 : 0.88, filter: "blur(8px)", opacity: 0 },
+          { scale: 1, filter: "blur(0px)", opacity: 1, duration: config.duration.section, ease: "power3.out" },
+          "-=0.4"
+        )
+        // 4. Bottom copyright and developer credits reveal
+        .fromTo(
+          ".footer-bottom-row",
+          { y: isMobile ? 12 : 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: config.duration.medium, ease: "power2.out" },
+          "-=0.3"
+        );
+    },
+    { scope: footerRef }
+  );
+
   return (
     <footer
       id="footer-experience"
@@ -537,7 +579,7 @@ export default function FooterSection() {
       }}
     >
       {/* ── TOP DELINEATION DIVIDER LINE ACROSS FULL CONTAINER ── */}
-      <div className="footer-reveal-node max-w-7xl mx-auto mb-8 sm:mb-10">
+      <div className="footer-divider-line max-w-7xl mx-auto mb-8 sm:mb-10">
         <div className="relative flex items-center justify-between">
           <div
             className={`w-full h-px ${isDarkMode
@@ -569,18 +611,14 @@ export default function FooterSection() {
         {/* ══════════════════════════════════════════════════════════
             MAIN ROW: [LEFT: WAYS TO CONNECT PANEL (8 COLS) | RIGHT: GLOBE (4 COLS)]
             ══════════════════════════════════════════════════════════ */}
-        <div className="footer-reveal-node grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+        <div className="footer-main-grid grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
 
           {/* ── LEFT SIDE: WIDER FULLY TRANSPARENT WAYS TO CONNECT PANEL (8 COLS) ── */}
           <div className="lg:col-span-8 space-y-4 text-left order-last lg:order-first">
 
             {/* Unified Glassmorphic Connection Panel: 100% transparent with soft blur */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className={`relative rounded-3xl border backdrop-blur-md p-3.5 sm:p-8 shadow-xl space-y-6 overflow-hidden bg-transparent ${isDarkMode
+            <div
+              className={`footer-connect-card relative rounded-3xl border backdrop-blur-md p-3.5 sm:p-8 shadow-xl space-y-6 overflow-hidden bg-transparent ${isDarkMode
                   ? "border-slate-800/80 shadow-[0_15px_40px_rgba(0,0,0,0.4)] text-white"
                   : "border-slate-200/90 shadow-lg text-slate-900"
                 }`}
@@ -840,12 +878,12 @@ export default function FooterSection() {
                 </div>
               </div>
 
-            </motion.div>
+            </div>
 
           </div>
 
           {/* ── RIGHT SIDE: ANIMATED 3D GLOBE WITH BALANCED SCRIPT NOTE (4 COLS) ── */}
-          <div className="lg:col-span-4 relative flex flex-row lg:flex-col items-center justify-start lg:justify-center gap-4 lg:gap-0 pt-4 lg:pt-0 order-first lg:order-last w-full">
+          <div className="footer-globe-wrapper lg:col-span-4 relative flex flex-row lg:flex-col items-center justify-start lg:justify-center gap-4 lg:gap-0 pt-4 lg:pt-0 order-first lg:order-last w-full">
 
             {/* Signature "Let's create impact together!" (Desktop only) */}
             <motion.div
@@ -901,7 +939,7 @@ export default function FooterSection() {
             BOTTOM BAR (DEVELOPER INFO + CREED + BACK TO TOP)
             ══════════════════════════════════════════════════════════ */}
         <div
-          className={`footer-reveal-node flex flex-col md:flex-row items-center justify-between gap-5 pt-4 border-t text-xs ${isDarkMode ? "border-slate-800/80" : "border-slate-200"
+          className={`footer-bottom-row flex flex-col md:flex-row items-center justify-between gap-5 pt-4 border-t text-xs ${isDarkMode ? "border-slate-800/80" : "border-slate-200"
             }`}
         >
 

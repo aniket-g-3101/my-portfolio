@@ -1,10 +1,8 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../../context/ThemeContext";
 import { CERTIFICATES } from "../../../utils/data";
-import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
 import {
   Calendar,
   ExternalLink,
@@ -19,6 +17,14 @@ import {
   Play,
   Pause,
 } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import { getAnimationConfig, getMotionPreferences } from "../../../lib/gsap/animationConfig";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 /* ── Enriched Metadata Map for Real Project Certificates ── */
 const CERT_METADATA = [
@@ -50,7 +56,6 @@ const EASE = [0.16, 1, 0.3, 1];
 
 export default function Certificates() {
   const { isDarkMode } = useTheme();
-  const prefersReducedMotion = useReducedMotion();
 
   /* State */
   const [activeIdx, setActiveIdx] = useState(1); // default to AWS
@@ -86,32 +91,6 @@ export default function Certificates() {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-
-  // GSAP ScrollTrigger Entrance Animation
-  useGSAP(
-    () => {
-      if (prefersReducedMotion) return;
-
-      gsap.fromTo(
-        ".cert-reveal-node",
-        { y: 35, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.85,
-          stagger: 0.12,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 80%",
-            toggleActions: "play none none none",
-            once: true,
-          },
-        }
-      );
-    },
-    { scope: sectionRef, dependencies: [prefersReducedMotion] }
-  );
 
   /* Auto-Cycle Through Certificates (3.5s interval) - only active when section is in view */
   useEffect(() => {
@@ -185,17 +164,113 @@ export default function Certificates() {
   /* Lock background scroll & hide floating navbar when modal is active */
   useEffect(() => {
     if (fullscreenCert) {
-      document.body.classList.add("has-modal-open");
+      document.body.classList.add("has-cert-modal-open");
       document.body.style.overflow = "hidden";
     } else {
-      document.body.classList.remove("has-modal-open");
+      document.body.classList.remove("has-cert-modal-open");
       document.body.style.overflow = "";
     }
     return () => {
-      document.body.classList.remove("has-modal-open");
+      document.body.classList.remove("has-cert-modal-open");
       document.body.style.overflow = "";
     };
   }, [fullscreenCert]);
+
+  /* ── Master GSAP Certificates Card Stack Reveal ── */
+  /* ── Master GSAP Certificates 3D Dimensional Card Cascade ── */
+  useGSAP(
+    () => {
+      const { isReducedMotion, isMobile } = getMotionPreferences();
+      const config = getAnimationConfig();
+
+      if (isReducedMotion) {
+        gsap.set(
+          [
+            ".cert-header-tag",
+            ".cert-title-block",
+            ".cert-list-group",
+            ".cert-list-item",
+            ".cert-showcase-card",
+          ],
+          { opacity: 1, y: 0, rotateX: 0, rotateY: 0, scale: 1, filter: "blur(0px)", clearProps: "all" }
+        );
+        return;
+      }
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 78%",
+          end: "bottom 20%",
+          toggleActions: "play none none none",
+          once: true,
+        },
+        defaults: {
+          ease: config.easing.entrance,
+        },
+      });
+
+      // 1. Header tag — lateral curtain wipe from the right edge
+      tl.fromTo(
+        ".cert-header-tag",
+        { clipPath: "inset(0 100% 0 0)", opacity: 0.4 },
+        { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: config.duration.short, ease: "power2.out" }
+      )
+        // 2. Title block — soft masked rise with depth blur settle
+        .fromTo(
+          ".cert-title-block",
+          { clipPath: "inset(100% 0 0 0)", y: 14, filter: isMobile ? "none" : "blur(6px)" },
+          { clipPath: "inset(0% 0 0 0)", y: 0, filter: "blur(0px)", duration: config.duration.medium, ease: "power3.out" },
+          "-=0.12"
+        )
+        // 3. Left list column — lateral curtain slide
+        .fromTo(
+          ".cert-list-group",
+          { clipPath: "inset(0 100% 0 0)", x: isMobile ? 0 : -20, opacity: 0 },
+          { clipPath: "inset(0 0% 0 0)", x: 0, opacity: 1, duration: config.duration.section, ease: "power3.out" },
+          "-=0.15"
+        )
+        // 4. Certificate cards — cascading rise with soft depth blur
+        .fromTo(
+          ".cert-list-item",
+          { opacity: 0, x: isMobile ? 0 : -16, y: isMobile ? 12 : 22, filter: isMobile ? "none" : "blur(5px)" },
+          {
+            opacity: 1,
+            x: 0,
+            y: 0,
+            filter: "blur(0px)",
+            duration: config.duration.medium,
+            stagger: isMobile ? 0.03 : 0.05,
+            ease: "power3.out",
+          },
+          "-=0.35"
+        )
+        // 5. Showcase card — flips in from the right with perspective depth
+        .fromTo(
+          ".cert-showcase-card",
+          {
+            y: isMobile ? 20 : 34,
+            scale: isMobile ? 0.98 : 0.94,
+            rotateY: isMobile ? 0 : 9,
+            transformPerspective: 1100,
+            transformOrigin: "left center",
+            opacity: 0,
+            filter: isMobile ? "none" : "blur(5px)",
+          },
+          {
+            y: 0,
+            scale: 1,
+            rotateY: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: config.duration.section,
+            ease: config.easing.cinematic,
+          },
+          "-=0.4"
+        );
+    },
+    { scope: sectionRef }
+  );
 
   return (
     <section
@@ -220,7 +295,7 @@ export default function Certificates() {
       <div className="max-w-7xl mx-auto relative z-10 w-full space-y-5">
 
         {/* ── TOP HEADER DIVIDER & AUTO-PLAY BUTTON ── */}
-        <div className="cert-reveal-node flex items-center justify-between border-b border-slate-700/30 dark:border-slate-800/80 pb-3">
+        <div className="cert-header-tag flex items-center justify-between border-b border-slate-700/30 dark:border-slate-800/80 pb-3">
           {/* Left Tag */}
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold tracking-widest text-blue-500">04</span>
@@ -255,7 +330,7 @@ export default function Certificates() {
         </div>
 
         {/* ── SECTION TITLE & SUBTITLE ── */}
-        <div className="cert-reveal-node text-left space-y-1">
+        <div className="cert-title-block text-left space-y-1">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight italic uppercase">
             <span className={isDarkMode ? "text-white" : "text-slate-900"}>Proof of </span>
             <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 bg-clip-text text-transparent">
@@ -276,10 +351,10 @@ export default function Certificates() {
             [MOBILE: HORIZONTAL SCROLL LIST ON TOP -> PREVIEW BOX BELOW]
             [DESKTOP: 2-COLUMN SPLIT (VERTICAL LIST LEFT | PREVIEW BOX RIGHT)]
             ══════════════════════════════════════════════════════════ */}
-        <div className="cert-reveal-node flex flex-col lg:grid lg:grid-cols-12 gap-5 lg:gap-8 items-stretch pt-1">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-5 lg:gap-8 items-stretch pt-1">
 
           {/* ── CERTIFICATES LIST: HORIZONTAL ON MOBILE, VERTICAL ON DESKTOP ── */}
-          <div className="w-full lg:col-span-5 flex flex-col space-y-2">
+          <div className="cert-list-group w-full lg:col-span-5 flex flex-col space-y-2">
             <div className="flex items-center justify-between pb-0.5">
               <span className={`text-xs font-bold uppercase tracking-widest ${isDarkMode ? "text-blue-400" : "text-blue-600"}`}>
                 VERIFIED CREDENTIALS ({CERTIFICATES.length})
@@ -312,7 +387,7 @@ export default function Certificates() {
                       setActiveIdx(idx);
                       setIsAutoPlay(false); // pause on manual interaction
                     }}
-                    className={`min-w-[240px] max-w-[260px] sm:min-w-[270px] lg:min-w-0 lg:max-w-none flex-shrink-0 snap-start p-3 rounded-2xl border flex items-start gap-3 transition-all duration-200 cursor-pointer select-none text-left ${
+                    className={`cert-list-item min-w-[240px] max-w-[260px] sm:min-w-[270px] lg:min-w-0 lg:max-w-none flex-shrink-0 snap-start p-3 rounded-2xl border flex items-start gap-3 transition-all duration-200 cursor-pointer select-none text-left ${
                       isSelected
                         ? isDarkMode
                           ? "bg-slate-900/95 border-indigo-400 text-white shadow-[0_0_20px_rgba(99,102,241,0.35)] ring-1.5 ring-indigo-400/40"
@@ -363,7 +438,7 @@ export default function Certificates() {
           </div>
 
           {/* ── RIGHT COLUMN: INFO BOX (BELOW LIST ON MOBILE, RIGHT ON DESKTOP) ── */}
-          <div className="w-full lg:col-span-7 flex flex-col h-auto min-h-[380px] lg:h-[420px] lg:sm:h-[435px]">
+          <div className="cert-showcase-card w-full lg:col-span-7 flex flex-col h-auto min-h-[380px] lg:h-[420px] lg:sm:h-[435px]">
             <div
               className={`p-4 sm:p-8 rounded-3xl border backdrop-blur-md transition-all duration-300 shadow-lg flex flex-col justify-between h-full ${
                 isDarkMode

@@ -1,7 +1,5 @@
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../../../context/ThemeContext";
-import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
 import {
   Mail,
   Phone,
@@ -18,6 +16,14 @@ import {
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { useState, useRef } from "react";
 import emailjs from "@emailjs/browser";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import { getAnimationConfig, getMotionPreferences } from "../../../lib/gsap/animationConfig";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // Topic Template Chips
 const INTENT_CHIPS = [
@@ -45,7 +51,6 @@ const INTENT_CHIPS = [
 
 export default function ContactSection() {
   const { isDarkMode } = useTheme();
-  const prefersReducedMotion = useReducedMotion();
   const sectionRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -69,32 +74,6 @@ export default function ContactSection() {
   const [activeChip, setActiveChip] = useState(null);
   const [copiedNotification, setCopiedNotification] = useState("");
   const [hoveredNode, setHoveredNode] = useState(null);
-
-  // GSAP ScrollTrigger Entrance Animation
-  useGSAP(
-    () => {
-      if (prefersReducedMotion) return;
-
-      gsap.fromTo(
-        ".contact-reveal-node",
-        { y: 35, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.85,
-          stagger: 0.12,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 80%",
-            toggleActions: "play none none none",
-            once: true,
-          },
-        }
-      );
-    },
-    { scope: sectionRef, dependencies: [prefersReducedMotion] }
-  );
 
   // Copy helper with visual notification banner
   const triggerCopy = async (text, label) => {
@@ -277,6 +256,103 @@ export default function ContactSection() {
     }
   };
 
+  /* ── Master GSAP Contact Section Entrance (Orbital Elastic Snap & 3D Form Reveal) ── */
+  useGSAP(
+    () => {
+      const { isReducedMotion, isMobile } = getMotionPreferences();
+      const config = getAnimationConfig();
+
+      if (isReducedMotion) {
+        gsap.set(
+          [
+            ".contact-header-tag",
+            ".contact-title-block",
+            ".contact-form-col",
+            ".contact-info-col",
+            ".contact-center-sphere",
+            ".contact-orbital-pill",
+          ],
+          { opacity: 1, y: 0, x: 0, scale: 1, rotateX: 0, clearProps: "all" }
+        );
+        return;
+      }
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 78%",
+          end: "bottom 20%",
+          toggleActions: "play none none none",
+          once: true,
+        },
+        defaults: {
+          ease: config.easing.entrance,
+        },
+      });
+
+      // 1. Header tag lateral slide + Title focus settle
+      tl.fromTo(
+        ".contact-header-tag",
+        { xPercent: isMobile ? -5 : -3, opacity: 0 },
+        { xPercent: 0, opacity: 1, duration: config.duration.short, ease: "power2.out" }
+      )
+        .fromTo(
+          ".contact-title-block",
+          { scale: isMobile ? 0.98 : 0.95, opacity: 0 },
+          { scale: 1, opacity: 1, duration: config.duration.medium, ease: "power3.out" },
+          "-=0.1"
+        )
+        // 2. Left Form Column: 3D perspective pitch entrance
+        .fromTo(
+          ".contact-form-col",
+          {
+            xPercent: isMobile ? 0 : -6,
+            y: isMobile ? 20 : 35,
+            rotateX: isMobile ? 0 : 5,
+            transformPerspective: 1200,
+            opacity: 0,
+          },
+          {
+            xPercent: 0,
+            y: 0,
+            rotateX: 0,
+            opacity: 1,
+            duration: config.duration.section,
+            ease: "power3.out",
+          },
+          "-=0.2"
+        )
+        // 3. Right Orbital Container emerges
+        .fromTo(
+          ".contact-info-col",
+          { xPercent: isMobile ? 0 : 6, opacity: 0 },
+          { xPercent: 0, opacity: 1, duration: config.duration.section, ease: "power3.out" },
+          "-=0.3"
+        )
+        // 4. Center 3D Glass Sphere expands with high-inertia elastic snap
+        .fromTo(
+          ".contact-center-sphere",
+          { scale: 0.3, filter: "blur(6px)", opacity: 0, transformOrigin: "50% 50%" },
+          { scale: 1, filter: "blur(0px)", opacity: 1, duration: config.duration.medium, ease: "back.out(1.5)" },
+          "-=0.4"
+        )
+        // 5. 5 Orbital Capsule Pills stagger pop into orbit
+        .fromTo(
+          ".contact-orbital-pill",
+          { scale: 0.35, opacity: 0, transformOrigin: "50% 50%" },
+          {
+            scale: 1,
+            opacity: 1,
+            duration: config.duration.medium,
+            stagger: isMobile ? 0.03 : 0.05,
+            ease: "back.out(1.4)",
+          },
+          "-=0.3"
+        );
+    },
+    { scope: sectionRef }
+  );
+
   return (
     <section
       id="contact"
@@ -299,7 +375,7 @@ export default function ContactSection() {
 
       <div className="max-w-7xl mx-auto relative z-10 w-full space-y-4 sm:space-y-6">
         {/* ── TOP HEADER DIVIDER ── */}
-        <div className="contact-reveal-node flex items-center gap-2.5 sm:gap-3 border-b border-slate-700/30 dark:border-slate-800/80 pb-2.5 sm:pb-3">
+        <div className="contact-header-tag flex items-center gap-2.5 sm:gap-3 border-b border-slate-700/30 dark:border-slate-800/80 pb-2.5 sm:pb-3">
           <span className="text-[11px] sm:text-xs font-bold tracking-widest text-blue-500">06</span>
           <div className={`w-5 sm:w-8 h-px ${isDarkMode ? "bg-slate-600" : "bg-slate-300"}`} />
           <span
@@ -313,7 +389,7 @@ export default function ContactSection() {
         </div>
 
         {/* ── SECTION TITLE & SUBTITLE ── */}
-        <div className="contact-reveal-node text-left space-y-1">
+        <div className="contact-title-block text-left space-y-1">
           <h2 className="text-xl sm:text-3xl md:text-4xl font-extrabold tracking-tight italic uppercase">
             <span className={isDarkMode ? "text-white" : "text-slate-900"}>Let's Build Something </span>
             <span className="bg-gradient-to-r from-blue-400 via-sky-400 to-cyan-400 bg-clip-text text-transparent">
@@ -348,10 +424,10 @@ export default function ContactSection() {
             RESPONSIVE 2-COLUMN LAYOUT:
             [FORM LEFT (5 COLS) | COMPACT MOBILE-OPTIMIZED HUB V2 (7 COLS)]
             ══════════════════════════════════════════════════════════ */}
-        <div className="contact-reveal-node grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-center pt-1 sm:pt-2">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 items-center pt-1 sm:pt-2">
           
           {/* ── LEFT COLUMN: TRANSPARENT FORM CARD ── */}
-          <div className="lg:col-span-5 w-full max-w-xl mx-auto lg:max-w-none">
+          <div className="contact-form-col lg:col-span-5 w-full max-w-xl mx-auto lg:max-w-none">
             <div
               className={`p-4 sm:p-7 rounded-2xl sm:rounded-3xl border backdrop-blur-xl transition-all duration-300 shadow-xl sm:shadow-2xl space-y-3.5 sm:space-y-5 ${
                 isDarkMode
@@ -575,7 +651,7 @@ export default function ContactSection() {
           {/* ══════════════════════════════════════════════════════════
               RIGHT COLUMN: MOBILE-OPTIMIZED COMPACT ORBITAL HUB V2
               ══════════════════════════════════════════════════════════ */}
-          <div className="lg:col-span-7 w-full flex flex-col items-center justify-center py-2 lg:py-0 space-y-4 sm:space-y-5">
+          <div className="contact-info-col lg:col-span-7 w-full flex flex-col items-center justify-center py-2 lg:py-0 space-y-4 sm:space-y-5">
             <div className="relative w-full max-w-[320px] sm:max-w-[500px] aspect-square flex items-center justify-center select-none">
               
               {/* ── HIGH-CONTRAST DOTTED ORBITAL RINGS & LASER CONNECTORS ── */}
@@ -619,7 +695,7 @@ export default function ContactSection() {
               </motion.div>
 
               {/* ── HIGH-CONTRAST 3D GLASS SPHERE (CENTER HUB) ── */}
-              <div className="relative z-20 flex flex-col items-center justify-center">
+              <div className="contact-center-sphere relative z-20 flex flex-col items-center justify-center">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.97 }}
@@ -689,7 +765,7 @@ export default function ContactSection() {
                   ══════════════════════════════════════════════════════════ */}
 
               {/* NODE 1: TOP (12 o'clock) -> EMAIL ME */}
-              <div className="absolute top-[0%] left-1/2 -translate-x-1/2 z-30">
+              <div className="contact-orbital-pill absolute top-[0%] left-1/2 -translate-x-1/2 z-30">
                 <motion.div
                   whileHover={{ scale: 1.08, y: -2 }}
                   whileTap={{ scale: 0.96 }}
@@ -718,7 +794,7 @@ export default function ContactSection() {
               </div>
 
               {/* NODE 2: TOP-RIGHT (2 o'clock) -> LINKEDIN */}
-              <div className="absolute top-[22%] right-[-3%] sm:right-[-4%] z-30">
+              <div className="contact-orbital-pill absolute top-[22%] right-[-3%] sm:right-[-4%] z-30">
                 <motion.div
                   whileHover={{ scale: 1.08, x: 2 }}
                   whileTap={{ scale: 0.96 }}
@@ -747,7 +823,7 @@ export default function ContactSection() {
               </div>
 
               {/* NODE 3: BOTTOM-RIGHT (4:30 o'clock) -> GITHUB */}
-              <div className="absolute bottom-[20%] right-[-3%] sm:right-[-4%] z-30">
+              <div className="contact-orbital-pill absolute bottom-[20%] right-[-3%] sm:right-[-4%] z-30">
                 <motion.div
                   whileHover={{ scale: 1.08, x: 2 }}
                   whileTap={{ scale: 0.96 }}
@@ -780,7 +856,7 @@ export default function ContactSection() {
               </div>
 
               {/* NODE 4: BOTTOM-LEFT (7:30 o'clock) -> CALL ME */}
-              <div className="absolute bottom-[20%] left-[-3%] sm:left-[-4%] z-30">
+              <div className="contact-orbital-pill absolute bottom-[20%] left-[-3%] sm:left-[-4%] z-30">
                 <motion.div
                   whileHover={{ scale: 1.08, x: -2 }}
                   whileTap={{ scale: 0.96 }}
@@ -809,7 +885,7 @@ export default function ContactSection() {
               </div>
 
               {/* NODE 5: TOP-LEFT (9:30 o'clock) -> LOCATION */}
-              <div className="absolute top-[22%] left-[-3%] sm:left-[-4%] z-30">
+              <div className="contact-orbital-pill absolute top-[22%] left-[-3%] sm:left-[-4%] z-30">
                 <motion.div
                   whileHover={{ scale: 1.08, x: -2 }}
                   whileTap={{ scale: 0.96 }}

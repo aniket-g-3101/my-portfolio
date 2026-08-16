@@ -89,8 +89,8 @@
     box-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
   }
 
-  /* When modal is open, ensure navbar is cleanly hidden and background is locked */
-  body.has-modal-open header {
+  /* When fullscreen certificate modal is open, ensure floating navbar is cleanly hidden */
+  body.has-cert-modal-open header {
     opacity: 0 !important;
     pointer-events: none !important;
     visibility: hidden !important;
@@ -187,6 +187,13 @@ body {
 #root {
   background-color: transparent;
   min-height: 100%;
+}
+
+/* ── WebKit / Mobile Backdrop Blur Anti-Flicker Stabilization ── */
+[class*="backdrop-blur"] {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 /* ── Hardware-Accelerated Micro-Interactions ── */

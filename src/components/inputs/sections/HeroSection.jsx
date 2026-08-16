@@ -1,15 +1,46 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useRef } from "react";
 import { ArrowUpRight, ArrowRight, Mail } from "lucide-react";
 import { FiGithub, FiLinkedin } from "react-icons/fi";
 import { useTheme } from "../../../context/ThemeContext";
 import Resume from "../../../assets/Resume/Aniket_Gavali_Resume.pdf";
 import { useLenisContext } from "../../../context/LenisContext";
 import { scrollToSection as lenisScrollTo } from "../../../hooks/useLenis";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+import { getAnimationConfig, getMotionPreferences } from "../../../lib/gsap/animationConfig";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+/* ── Per-letter scatter vectors for "Aniket" ──
+   Each letter gets a unique trajectory: x, y offset + rotation.
+   These feel hand-crafted — no two letters move the same way. */
+const ANIKET_SCATTER = [
+  { x: -120, y: -90,  rotate: -25 },  // A — flies upper-left
+  { x:  -55, y:  110, rotate:  18 },  // n — drops down-left
+  { x:   30, y: -130, rotate: -12 },  // i — shoots straight up
+  { x:  100, y:  -60, rotate:  30 },  // k — flings upper-right
+  { x:  140, y:   85, rotate: -20 },  // e — arcs lower-right
+  { x:  -80, y:  120, rotate:  22 },  // t — tumbles down-left
+];
+
+/* ── Per-letter scatter vectors for "GAVALI" ──
+   Bold industrial tracking expansion + vertical drift. */
+const GAVALI_SCATTER = [
+  { x: -90,  y: 45,   rotate: 15  },  // G
+  { x: -45,  y: -60,  rotate: -10 },  // A
+  { x:  15,  y: 80,   rotate: 20  },  // V
+  { x:  65,  y: -50,  rotate: -15 },  // A
+  { x:  110, y: 35,   rotate: 12  },  // L
+  { x:  140, y: -70,  rotate: -22 },  // I
+];
 
 const HeroSection = () => {
   const { isDarkMode } = useTheme();
   const lenisRef = useLenisContext();
+  const heroRef = useRef(null);
 
   const scrollToSection = (sectionId) => {
     lenisScrollTo(sectionId, lenisRef);
@@ -42,22 +73,247 @@ const HeroSection = () => {
     },
   ];
 
-  const stagger = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.10, delayChildren: 0.15 },
-    },
-  };
+  /* ── Master GSAP Hero Entrance & Scroll Exit Choreography ── */
+  useGSAP(
+    () => {
+      const { isReducedMotion, isMobile } = getMotionPreferences();
+      const config = getAnimationConfig();
 
-  const rise = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.75, ease: [0.16, 1, 0.3, 1] },
+      if (isReducedMotion) {
+        gsap.set(
+          [
+            ".hero-tag",
+            ".hero-hey",
+            ".hero-name",
+            ".hero-swoosh-path",
+            ".hero-gavali",
+            ".hero-accent-line",
+            ".hero-headline-line",
+            ".hero-desc",
+            ".hero-cta-btn",
+            ".hero-mobile-social",
+            ".hero-social-rail",
+            ".hero-dot-grid",
+            ".aniket-letter",
+            ".gavali-letter",
+          ],
+          { opacity: 1, x: 0, y: 0, scale: 1, strokeDashoffset: 0, clearProps: "all" }
+        );
+        return;
+      }
+
+      // 1. Master Entrance Timeline (Deterministic sequence)
+      const tl = gsap.timeline({
+        defaults: {
+          ease: config.easing.entrance,
+        },
+      });
+
+      // Initial states
+      gsap.set(".hero-accent-line", { scaleX: 0, transformOrigin: "left center" });
+      gsap.set(".hero-swoosh-path", { strokeDasharray: 220, strokeDashoffset: 220 });
+
+      // Step 1: "Hey, I'm" and Tag enters from the left
+      tl.fromTo(
+        ".hero-tag",
+        { x: isMobile ? -20 : -40, opacity: 0 },
+        { x: 0, opacity: 1, duration: config.duration.short, ease: "power2.out" }
+      )
+        .fromTo(
+          ".hero-hey",
+          { x: isMobile ? -25 : -50, opacity: 0 },
+          { x: 0, opacity: 1, duration: config.duration.medium, ease: "power3.out" },
+          "-=0.15"
+        )
+
+        // Step 2: "Aniket" follows naturally with subtle scale & path draw
+        .fromTo(
+          ".hero-name",
+          { x: isMobile ? -15 : -25, scale: 0.94, opacity: 0 },
+          { x: 0, scale: 1, opacity: 1, duration: config.duration.section, ease: config.easing.cinematic },
+          "-=0.25"
+        )
+        .to(
+          ".hero-swoosh-path",
+          { strokeDashoffset: 0, duration: config.duration.medium, ease: "power2.out" },
+          "-=0.35"
+        )
+
+        // Step 3: "GAVALI" reveals from behind hard mask + accent line expands
+        .fromTo(
+          ".hero-gavali span",
+          { yPercent: 110 },
+          { yPercent: 0, duration: config.duration.medium, ease: "power3.out" },
+          "-=0.3"
+        )
+        .to(
+          ".hero-accent-line",
+          { scaleX: 1, opacity: 1, duration: config.duration.short, ease: "power2.out" },
+          "-=0.2"
+        )
+
+        // Step 4: Headline lines rise sequentially from behind overflow masks
+        .fromTo(
+          ".hero-headline-line",
+          { yPercent: 110 },
+          { yPercent: 0, duration: config.duration.medium, stagger: config.stagger.fast, ease: "power3.out" },
+          "-=0.1"
+        )
+        .fromTo(
+          ".hero-desc",
+          { y: isMobile ? 12 : 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: config.duration.medium, ease: "power2.out" },
+          "-=0.2"
+        )
+        .fromTo(
+          ".hero-cta-btn",
+          { y: isMobile ? 10 : 15, opacity: 0 },
+          { y: 0, opacity: 1, duration: config.duration.short, stagger: config.stagger.fast, ease: config.easing.snappy },
+          "-=0.15"
+        )
+        .fromTo(
+          ".hero-mobile-social",
+          { y: 10, opacity: 0 },
+          { y: 0, opacity: 1, duration: config.duration.short },
+          "-=0.2"
+        )
+
+        // Side & Right column accents
+        .fromTo(
+          ".hero-social-rail",
+          { x: -30, opacity: 0 },
+          { x: 0, opacity: 1, duration: config.duration.section, ease: config.easing.cinematic },
+          "-=0.7"
+        )
+        .fromTo(
+          ".hero-dot-grid",
+          { opacity: 0 },
+          { opacity: 1, duration: config.duration.section },
+          "-=0.5"
+        );
+
+      // 2. Scrubbed Exit Parallax & Fade on Scroll into About Section
+      if (!isReducedMotion) {
+        const exitTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.8, // Direct smooth physics scrub
+            invalidateOnRefresh: true,
+          },
+        });
+
+        // Content column shifts up smoothly and fades
+        exitTl.to(
+          ".hero-content-col",
+          {
+            y: isMobile ? -30 : -65,
+            opacity: isMobile ? 0.35 : 0.25,
+            ease: "none",
+          },
+          0
+        );
+
+        // Dot matrix subtle parallax
+        exitTl.to(
+          ".hero-dot-grid",
+          {
+            y: isMobile ? -20 : -45,
+            opacity: 0.1,
+            ease: "none",
+          },
+          0
+        );
+
+      }
+
+
+      /* ══════════════════════════════════════════════════════════
+         3. SCROLL-TRIGGERED LETTER SCATTER — "Aniket" & "GAVALI"
+         Scrubbed 1:1 with Lenis smooth scroll via GSAP ScrollTrigger.
+         Each letter disperses along its own trajectory as the user scrolls.
+         ══════════════════════════════════════════════════════════ */
+      if (!isReducedMotion) {
+        const scatterScale = isMobile ? 0.5 : 1;
+
+        // ─── "Aniket" letter scatter ───
+        const aniketLetters = heroRef.current?.querySelectorAll(".aniket-letter");
+        if (aniketLetters?.length) {
+          const aniketTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: heroRef.current,
+              start: "top top",
+              end: isMobile ? "40% top" : "55% top",
+              scrub: 0.6,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          aniketLetters.forEach((letter, i) => {
+            const scatter = ANIKET_SCATTER[i] || { x: 0, y: 0, rotate: 0 };
+            aniketTl.to(
+              letter,
+              {
+                x: scatter.x * scatterScale,
+                y: scatter.y * scatterScale,
+                rotation: scatter.rotate * scatterScale,
+                opacity: 0,
+                scale: 0.6,
+                ease: "none",
+              },
+              0
+            );
+          });
+
+          // Swoosh fades and collapses with the name
+          aniketTl.to(
+            ".hero-swoosh",
+            { opacity: 0, y: 20 * scatterScale, ease: "none" },
+            0
+          );
+        }
+
+        // ─── "GAVALI" letter scatter ───
+        const gavaliLetters = heroRef.current?.querySelectorAll(".gavali-letter");
+        if (gavaliLetters?.length) {
+          const gavaliTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: heroRef.current,
+              start: "top top",
+              end: isMobile ? "40% top" : "55% top",
+              scrub: 0.6,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          gavaliLetters.forEach((letter, i) => {
+            const scatter = GAVALI_SCATTER[i] || { x: 0, y: 0, rotate: 0 };
+            gavaliTl.to(
+              letter,
+              {
+                x: scatter.x * scatterScale,
+                y: scatter.y * scatterScale,
+                rotation: scatter.rotate * scatterScale,
+                opacity: 0,
+                scale: 0.65,
+                ease: "none",
+              },
+              0
+            );
+          });
+
+          // Accent line shrinks away
+          gavaliTl.to(
+            ".hero-accent-line",
+            { scaleX: 0, opacity: 0, ease: "none" },
+            0
+          );
+        }
+      }
     },
-  };
+    { scope: heroRef }
+  );
 
   /* dotted grid generator */
   const dots = [];
@@ -72,31 +328,26 @@ const HeroSection = () => {
   return (
     <section
       id="home"
-      className={`relative w-full pt-28 sm:pt-36 pb-16 sm:pb-24 px-4 sm:px-8 lg:px-12 overflow-hidden ${
-        isDarkMode ? "text-white" : "text-slate-900"
-      }`}
+      ref={heroRef}
+      className={`relative w-full pt-28 sm:pt-36 pb-16 sm:pb-24 px-4 sm:px-8 lg:px-12 overflow-hidden ${isDarkMode ? "text-white" : "text-slate-900"
+        }`}
     >
       {/* GPU ACCELERATED MOBILE AMBIENT BACKGROUND */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div
-          className={`absolute top-0 right-0 w-[550px] h-[550px] rounded-full blur-[150px] opacity-30 ${
-            isDarkMode ? "bg-blue-600/20" : "bg-blue-400/15"
-          }`}
+          className={`absolute top-0 right-0 w-[550px] h-[550px] rounded-full blur-[150px] opacity-30 ${isDarkMode ? "bg-blue-600/20" : "bg-blue-400/15"
+            }`}
         />
         <div
-          className={`absolute bottom-10 left-10 w-[450px] h-[450px] rounded-full blur-[140px] opacity-25 ${
-            isDarkMode ? "bg-cyan-500/20" : "bg-cyan-300/15"
-          }`}
+          className={`absolute bottom-10 left-10 w-[450px] h-[450px] rounded-full blur-[140px] opacity-25 ${isDarkMode ? "bg-cyan-500/20" : "bg-cyan-300/15"
+            }`}
         />
       </div>
 
       {/* ── FUTURISTIC CYBER SOCIAL RAIL WITH LASER LINES & "LET'S CONNECT HERE" ── */}
       <aside className="hidden xl:flex fixed left-6 2xl:left-10 top-1/2 -translate-y-1/2 flex-col items-center z-40">
-        <motion.div
-          initial={{ opacity: 0, x: -25 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col items-center gap-3.5"
+        <div
+          className="hero-social-rail flex flex-col items-center gap-3.5"
         >
           {/* Top Futuristic Laser Line with Traveling Light Pulse */}
           <div className="flex flex-col items-center gap-1.5">
@@ -104,11 +355,10 @@ const HeroSection = () => {
               SYS.01
             </span>
             <div
-              className={`w-[2px] h-14 rounded-full laser-rail ${
-                isDarkMode
+              className={`w-[2px] h-14 rounded-full laser-rail ${isDarkMode
                   ? "bg-slate-800/90 shadow-[0_0_8px_rgba(56,189,248,0.2)]"
                   : "bg-slate-300/90 shadow-[0_0_6px_rgba(2,132,199,0.2)]"
-              }`}
+                }`}
             />
           </div>
 
@@ -119,11 +369,10 @@ const HeroSection = () => {
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500 shadow-[0_0_10px_#06b6d4]" />
             </span>
             <span
-              className={`font-mono-tech text-[9.5px] font-extrabold tracking-[0.3em] uppercase transition-all duration-300 ${
-                isDarkMode
+              className={`font-mono-tech text-[9.5px] font-extrabold tracking-[0.3em] uppercase transition-all duration-300 ${isDarkMode
                   ? "text-slate-300 group-hover:text-cyan-300 group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]"
                   : "text-slate-600 group-hover:text-blue-600 group-hover:drop-shadow-[0_0_8px_rgba(37,99,235,0.6)]"
-              }`}
+                }`}
               style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
             >
               LET&apos;S CONNECT HERE
@@ -134,11 +383,10 @@ const HeroSection = () => {
           <div className="flex flex-col items-center gap-1">
             <div className={`w-1.5 h-1.5 rounded-full ${isDarkMode ? "bg-cyan-400 shadow-[0_0_6px_#22d3ee]" : "bg-blue-500 shadow-[0_0_6px_#3b82f6]"}`} />
             <div
-              className={`w-[2px] h-6 rounded-full ${
-                isDarkMode
+              className={`w-[2px] h-6 rounded-full ${isDarkMode
                   ? "bg-gradient-to-b from-cyan-400/80 via-indigo-500/50 to-transparent"
                   : "bg-gradient-to-b from-blue-500/80 via-indigo-400/40 to-transparent"
-              }`}
+                }`}
             />
           </div>
 
@@ -146,19 +394,15 @@ const HeroSection = () => {
           <div className="flex flex-col items-center gap-3.5">
             {socialLinks.map((item, idx) => (
               <div key={idx} className="relative group flex items-center">
-                <motion.a
+                <a
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={item.label}
-                  whileHover={{ scale: 1.14, y: -2 }}
-                  whileTap={{ scale: 0.92 }}
-                  transition={{ type: "spring", stiffness: 450, damping: 22 }}
-                  className={`w-11 h-11 rounded-xl border backdrop-blur-xl flex items-center justify-center transition-all duration-300 cursor-pointer select-none relative overflow-hidden ${
-                    isDarkMode
+                  className={`w-11 h-11 rounded-xl border backdrop-blur-xl flex items-center justify-center transition-all duration-300 cursor-pointer select-none relative overflow-hidden ${isDarkMode
                       ? "border-slate-800/90 bg-slate-950/80 text-slate-300 shadow-[0_4px_20px_rgba(0,0,0,0.6)]"
                       : "border-slate-200/90 bg-white/90 text-slate-700 shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
-                  } ${item.hoverClass}`}
+                    } ${item.hoverClass}`}
                 >
                   {/* Futuristic Cyber Corner Brackets */}
                   <span className="absolute top-1 left-1 w-1.5 h-1.5 border-t border-l border-cyan-400/0 group-hover:border-cyan-400/90 transition-colors duration-300 pointer-events-none" />
@@ -171,16 +415,15 @@ const HeroSection = () => {
 
                   {/* Icon */}
                   <item.icon size={18} className="relative z-10 transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_6px_currentColor]" />
-                </motion.a>
+                </a>
 
                 {/* Futuristic HUD Glass Tooltip (Slides Out Smoothly to Right on Hover) */}
                 <div className="absolute left-full ml-4 pointer-events-none opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-250 ease-out z-50">
                   <div
-                    className={`px-3.5 py-2.5 rounded-xl border backdrop-blur-2xl shadow-2xl flex items-center gap-3 whitespace-nowrap relative ${
-                      isDarkMode
+                    className={`px-3.5 py-2.5 rounded-xl border backdrop-blur-2xl shadow-2xl flex items-center gap-3 whitespace-nowrap relative ${isDarkMode
                         ? "bg-slate-950/95 border-cyan-500/40 text-white shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_15px_rgba(6,182,212,0.15)]"
                         : "bg-white/95 border-blue-400/40 text-slate-900 shadow-[0_10px_30px_rgba(0,0,0,0.1),0_0_12px_rgba(59,130,246,0.15)]"
-                    }`}
+                      }`}
                   >
                     {/* Tooltip Corner Accents */}
                     <span className="absolute top-1 left-1 w-1 h-1 border-t border-l border-cyan-400/80" />
@@ -210,82 +453,77 @@ const HeroSection = () => {
           {/* Bottom Futuristic Laser Line with Traveling Light Pulse */}
           <div className="flex flex-col items-center gap-1.5">
             <div
-              className={`w-[2px] h-14 rounded-full laser-rail ${
-                isDarkMode
+              className={`w-[2px] h-14 rounded-full laser-rail ${isDarkMode
                   ? "bg-slate-800/90 shadow-[0_0_8px_rgba(56,189,248,0.2)]"
                   : "bg-slate-300/90 shadow-[0_0_6px_rgba(2,132,199,0.2)]"
-              }`}
+                }`}
             />
             <span className={`text-[8px] font-mono-tech tracking-widest uppercase select-none ${isDarkMode ? "text-cyan-400/60" : "text-blue-500/70"}`}>
               COMMS
             </span>
           </div>
-        </motion.div>
+        </div>
       </aside>
 
       {/* MAIN HERO LAYOUT */}
       <div className="w-full max-w-7xl mx-auto z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-4 items-start xl:pl-14">
         {/* LEFT COLUMN — Content Stack */}
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={stagger}
-          className="lg:col-span-7 flex flex-col items-start text-left"
-        >
+        <div className="hero-content-col lg:col-span-7 flex flex-col items-start text-left">
           {/* 01 — SOFTWARE DEVELOPER label */}
-          <motion.div variants={rise} className="flex items-center gap-3 mb-5 sm:mb-8 lg:mb-10">
+          <div className="hero-tag flex items-center gap-3 mb-5 sm:mb-8 lg:mb-10">
             <span className="font-mono-tech text-xs font-semibold tracking-widest text-blue-500">01</span>
             <div className={`w-6 sm:w-8 h-px ${isDarkMode ? "bg-slate-600" : "bg-slate-300"}`} />
             <span
-              className={`font-grotesk text-xs sm:text-[13px] font-bold tracking-widest uppercase ${
-                isDarkMode ? "text-slate-300" : "text-slate-600"
-              }`}
+              className={`font-grotesk text-xs sm:text-[13px] font-bold tracking-widest uppercase ${isDarkMode ? "text-slate-300" : "text-slate-600"
+                }`}
             >
               SOFTWARE DEVELOPER
             </span>
             <div className={`w-6 sm:w-8 h-px ${isDarkMode ? "bg-slate-600" : "bg-slate-300"}`} />
-          </motion.div>
+          </div>
 
           {/* "Hey, I'm" */}
-          <motion.p
-            variants={rise}
-            className={`font-display text-xl sm:text-3xl lg:text-[2.1rem] font-medium mb-1 ${
-              isDarkMode ? "text-slate-200" : "text-slate-700"
-            }`}
+          <p
+            className={`hero-hey font-display text-xl sm:text-3xl lg:text-[2.1rem] font-medium mb-1 ${isDarkMode ? "text-slate-200" : "text-slate-700"
+              }`}
           >
             Hey, I'm
-          </motion.p>
+          </p>
 
-          {/* Handwritten "Aniket" — signature style (Mobile Scaled) */}
-          <motion.div
-            variants={rise}
-            whileHover={{ scale: 1.015, x: 4 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="origin-left mb-1 relative inline-block max-w-full"
+          {/* ── "Aniket" — Split into individual letters for scroll scatter ── */}
+          <div
+            className="hero-name origin-left mb-1 relative inline-block max-w-full"
           >
             <span
-              className={`font-cursive text-5xl xs:text-6xl sm:text-8xl lg:text-[7rem] xl:text-[7.5rem] font-bold bg-gradient-to-r bg-clip-text text-transparent leading-[1.15] cursor-default ${
-                isDarkMode
-                  ? "from-blue-400 via-indigo-400 to-blue-500 drop-shadow-[0_4px_24px_rgba(59,130,246,0.3)]"
-                  : "from-blue-600 via-indigo-600 to-blue-700 drop-shadow-[0_2px_8px_rgba(59,130,246,0.15)]"
-              }`}
-              style={{ transform: "rotate(-2deg)", display: "inline-block" }}
+              className="font-cursive text-5xl xs:text-6xl sm:text-8xl lg:text-[7rem] xl:text-[7.5rem] font-bold leading-[1.15] cursor-default inline-flex pr-2"
+              style={{ transform: "rotate(-2deg)" }}
+              aria-label="Aniket"
             >
-              Aniket
+              {"Aniket".split("").map((char, i) => (
+                <span
+                  key={i}
+                  className={`aniket-letter inline-block will-change-transform bg-gradient-to-r bg-clip-text text-transparent ${isDarkMode
+                      ? "from-blue-400 via-indigo-400 to-blue-500 drop-shadow-[0_4px_24px_rgba(59,130,246,0.3)]"
+                      : "from-blue-600 via-indigo-600 to-blue-700 drop-shadow-[0_2px_8px_rgba(59,130,246,0.15)]"
+                    }`}
+                  style={{ display: "inline-block" }}
+                >
+                  {char}
+                </span>
+              ))}
             </span>
 
             {/* Signature swoosh anchored directly under Aniket */}
-            <div className="absolute -bottom-2 sm:-bottom-3 left-1 w-36 xs:w-48 sm:w-60 pointer-events-none z-10">
+            <div className="hero-swoosh absolute -bottom-2 sm:-bottom-3 left-1 w-36 xs:w-48 sm:w-60 pointer-events-none z-10">
+
               <svg width="100%" height="30" viewBox="0 0 200 30" fill="none" className="overflow-visible">
-                <motion.path
+                <path
+                  className="hero-swoosh-path"
                   d="M 0 20 Q 40 5, 80 15 T 160 10 Q 180 9, 195 12"
                   stroke="url(#heroSwooshGrad)"
                   strokeWidth="2"
                   strokeLinecap="round"
                   fill="none"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 1.2, delay: 0.6, ease: "easeOut" }}
                 />
                 <defs>
                   <linearGradient id="heroSwooshGrad" x1="0" y1="0" x2="200" y2="0" gradientUnits="userSpaceOnUse">
@@ -296,65 +534,77 @@ const HeroSection = () => {
                 </defs>
               </svg>
             </div>
-          </motion.div>
+          </div>
 
-          {/* "GAVALI" with accent line */}
-          <motion.div variants={rise} className="flex items-center gap-3 sm:gap-4 mt-1 mb-5 sm:mb-8 lg:mb-9">
-            <span
-              className={`font-grotesk text-lg sm:text-2xl lg:text-[1.65rem] font-bold tracking-[0.35em] uppercase ${
-                isDarkMode ? "text-white" : "text-slate-900"
-              }`}
-            >
-              GAVALI
-            </span>
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: "3.5rem" }}
-              transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
-              className="h-[2.5px] bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+          {/* ── "GAVALI" — Split into individual letters for scroll scatter ── */}
+          <div className="hero-gavali flex items-center gap-3 sm:gap-4 mt-1 mb-5 sm:mb-8 lg:mb-9">
+            <div className="overflow-hidden">
+              <span
+                className={`font-grotesk text-lg sm:text-2xl lg:text-[1.65rem] font-bold tracking-[0.35em] uppercase inline-flex ${isDarkMode ? "text-white" : "text-slate-900"
+                  }`}
+                aria-label="GAVALI"
+              >
+                {"GAVALI".split("").map((char, i) => (
+                  <span
+                    key={i}
+                    className="gavali-letter inline-block will-change-transform"
+                    style={{ display: "inline-block" }}
+                  >
+                    {char}
+                  </span>
+                ))}
+              </span>
+            </div>
+            <div
+              className="hero-accent-line h-[2.5px] w-14 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
             />
-          </motion.div>
+          </div>
 
-          {/* ── MAIN HEADLINE (Responsive Mobile Scale) ── */}
-          <motion.div variants={rise} className="mb-5 sm:mb-7">
+          {/* ── MAIN HEADLINE (Masked Line-by-Line Rise) ── */}
+          <div className="hero-headline mb-5 sm:mb-7">
             <h1 className="font-display font-extrabold uppercase leading-tight tracking-tight">
-              <span className={`block text-3xl sm:text-4xl lg:text-[2.7rem] ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                I BUILD
-              </span>
-              <span className="block text-3xl sm:text-4xl lg:text-[2.7rem] bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 bg-clip-text text-transparent">
-                DIGITAL
-              </span>
-              <span className={`block text-3xl sm:text-4xl lg:text-[2.7rem] ${isDarkMode ? "text-white" : "text-slate-900"}`}>
-                EXPERIENCES
-              </span>
-              <span className="block text-3xl sm:text-4xl lg:text-[2.7rem]">
-                <span className={isDarkMode ? "text-white" : "text-slate-900"}>FOR THE WEB</span>
-                <span className="text-blue-500">.</span>
-              </span>
+              <div className="overflow-hidden">
+                <span className={`hero-headline-line block text-3xl sm:text-4xl lg:text-[2.7rem] ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                  I BUILD
+                </span>
+              </div>
+              <div className="overflow-hidden">
+                <span className="hero-headline-line block text-3xl sm:text-4xl lg:text-[2.7rem] bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 bg-clip-text text-transparent">
+                  DIGITAL
+                </span>
+              </div>
+              <div className="overflow-hidden">
+                <span className={`hero-headline-line block text-3xl sm:text-4xl lg:text-[2.7rem] ${isDarkMode ? "text-white" : "text-slate-900"}`}>
+                  EXPERIENCES
+                </span>
+              </div>
+              <div className="overflow-hidden">
+                <span className="hero-headline-line block text-3xl sm:text-4xl lg:text-[2.7rem]">
+                  <span className={isDarkMode ? "text-white" : "text-slate-900"}>FOR THE WEB</span>
+                  <span className="text-blue-500">.</span>
+                </span>
+              </div>
             </h1>
-          </motion.div>
+          </div>
 
           {/* ── DESCRIPTION with vertical accent ── */}
-          <motion.div variants={rise} className="mb-6 sm:mb-8 lg:mb-9 max-w-md flex items-stretch gap-3.5">
+          <div className="hero-desc mb-6 sm:mb-8 lg:mb-9 max-w-md flex items-stretch gap-3.5">
             <div className="w-[3px] bg-gradient-to-b from-blue-500 via-indigo-500 to-blue-600 rounded-full flex-shrink-0" />
             <p className={`font-sans-body text-sm sm:text-base leading-relaxed font-medium ${isDarkMode ? "text-slate-200" : "text-slate-700"}`}>
               Full-stack developer focused on clean interfaces, thoughtful interactions, and reliable web applications.
             </p>
-          </motion.div>
+          </div>
 
           {/* ── CTAs — editorial text links ── */}
-          <motion.div variants={rise} className="flex flex-wrap items-center gap-6 sm:gap-10 mb-8 sm:mb-10">
+          <div className="hero-ctas flex flex-wrap items-center gap-6 sm:gap-10 mb-8 sm:mb-10">
             {/* EXPLORE WORK ↗ */}
-            <motion.button
-              whileHover={{ x: 3 }}
-              whileTap={{ scale: 0.97 }}
+            <button
               onClick={() => scrollToSection("work")}
-              className="group relative inline-flex flex-col items-start cursor-pointer py-1"
+              className="hero-cta-btn group relative inline-flex flex-col items-start cursor-pointer py-1"
             >
               <div
-                className={`flex items-center gap-2.5 font-grotesk font-bold text-xs sm:text-[13px] tracking-[0.22em] uppercase transition-colors duration-300 ${
-                  isDarkMode ? "text-white group-hover:text-blue-400" : "text-slate-900 group-hover:text-blue-600"
-                }`}
+                className={`flex items-center gap-2.5 font-grotesk font-bold text-xs sm:text-[13px] tracking-[0.22em] uppercase transition-colors duration-300 ${isDarkMode ? "text-white group-hover:text-blue-400" : "text-slate-900 group-hover:text-blue-600"
+                  }`}
               >
                 <span>EXPLORE WORK</span>
                 <ArrowUpRight
@@ -364,146 +614,72 @@ const HeroSection = () => {
                 />
               </div>
               <div className="w-full h-[1.5px] bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 mt-2 transition-all duration-300 group-hover:h-[2px] group-hover:shadow-[0_0_10px_rgba(59,130,246,0.7)]" />
-            </motion.button>
+            </button>
 
             {/* RESUME → */}
-            <motion.a
+            <a
               href={Resume}
               target="_blank"
               rel="noopener noreferrer"
-              whileHover={{ x: 3 }}
-              whileTap={{ scale: 0.97 }}
-              className="group relative inline-flex flex-col items-start cursor-pointer py-1"
+              className="hero-cta-btn group relative inline-flex flex-col items-start cursor-pointer py-1"
             >
               <div
-                className={`flex items-center gap-2.5 font-grotesk font-bold text-xs sm:text-[13px] tracking-[0.22em] uppercase transition-colors duration-300 ${
-                  isDarkMode ? "text-slate-300 group-hover:text-indigo-400" : "text-slate-600 group-hover:text-indigo-600"
-                }`}
+                className={`flex items-center gap-2.5 font-grotesk font-bold text-xs sm:text-[13px] tracking-[0.22em] uppercase transition-colors duration-300 ${isDarkMode ? "text-slate-300 group-hover:text-indigo-400" : "text-slate-600 group-hover:text-indigo-600"
+                  }`}
               >
                 <span>RESUME</span>
                 <ArrowRight
                   size={16}
                   strokeWidth={2.5}
-                  className={`transition-transform duration-300 group-hover:translate-x-1.5 ${
-                    isDarkMode ? "text-slate-500 group-hover:text-indigo-400" : "text-slate-400 group-hover:text-indigo-600"
-                  }`}
+                  className={`transition-transform duration-300 group-hover:translate-x-1.5 ${isDarkMode ? "text-slate-500 group-hover:text-indigo-400" : "text-slate-400 group-hover:text-indigo-600"
+                    }`}
                 />
               </div>
               <div
-                className={`w-full h-[1.5px] mt-2 transition-all duration-300 ${
-                  isDarkMode
+                className={`w-full h-[1.5px] mt-2 transition-all duration-300 ${isDarkMode
                     ? "bg-slate-600 group-hover:bg-indigo-400 group-hover:h-[2px] group-hover:shadow-[0_0_10px_rgba(99,102,241,0.6)]"
                     : "bg-slate-300 group-hover:bg-indigo-500 group-hover:h-[2px] group-hover:shadow-[0_0_10px_rgba(99,102,241,0.6)]"
-                }`}
+                  }`}
               />
-            </motion.a>
-          </motion.div>
+            </a>
+          </div>
 
           {/* Mobile Social Bar Pill */}
-          <motion.div variants={rise} className="flex xl:hidden items-center gap-3 pt-1 mb-4">
+          <div className="hero-mobile-social flex xl:hidden items-center gap-3 pt-1 mb-4">
             <div
-              className={`flex items-center gap-3 p-2 px-4 rounded-full border backdrop-blur-md ${
-                isDarkMode ? "bg-slate-900/90 border-slate-700/80 shadow-md" : "bg-white border-slate-200 shadow-md"
-              }`}
+              className={`flex items-center gap-3 p-2 px-4 rounded-full border backdrop-blur-md ${isDarkMode ? "bg-slate-900/90 border-slate-700/80 shadow-md" : "bg-white border-slate-200 shadow-md"
+                }`}
             >
               <span
-                className={`font-mono-tech text-xs font-bold uppercase tracking-wider ${
-                  isDarkMode ? "text-slate-300" : "text-slate-600"
-                }`}
+                className={`font-mono-tech text-xs font-bold uppercase tracking-wider ${isDarkMode ? "text-slate-300" : "text-slate-600"
+                  }`}
               >
                 Connect:
               </span>
               {socialLinks.map((item, idx) => (
-                <motion.a
+                <a
                   key={idx}
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={item.label}
-                  whileHover={{ scale: 1.12, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`p-1.5 rounded-full transition-colors ${
-                    isDarkMode ? "text-blue-400 hover:text-white" : "text-blue-600 hover:text-slate-950"
-                  }`}
+                  className={`p-1.5 rounded-full transition-colors ${isDarkMode ? "text-blue-400 hover:text-white" : "text-blue-600 hover:text-slate-950"
+                    }`}
                 >
                   <item.icon size={16} />
-                </motion.a>
+                </a>
               ))}
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         {/* RIGHT COLUMN — Decorative Code Snippet & Grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-          className="lg:col-span-5 relative hidden lg:flex flex-col items-end justify-start min-h-[480px]"
+        <div
+          className="hero-right-col lg:col-span-5 relative hidden lg:flex flex-col items-end justify-start min-h-[480px]"
         >
-          {/* Code Snippet */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className={`relative mr-4 mt-2 p-4 sm:p-5 rounded-2xl border backdrop-blur-md shadow-xl transition-all duration-300 w-72 ${
-              isDarkMode
-                ? "bg-slate-900/80 border-slate-800 shadow-black/40"
-                : "bg-white/85 border-slate-200/80 shadow-slate-200/50"
-            }`}
-          >
-            {/* Terminal Header */}
-            <div className="flex items-center gap-1.5 mb-3 pb-2 border-b border-slate-700/20">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-              <span className={`font-mono-tech text-[10px] ml-auto font-medium ${
-                isDarkMode ? "text-slate-500" : "text-slate-400"
-              }`}>
-                developer.js
-              </span>
-            </div>
-
-            <div className={`font-mono-tech text-xs leading-relaxed ${isDarkMode ? "text-slate-300" : "text-slate-700"}`}>
-              <div>
-                <span className={isDarkMode ? "text-blue-400" : "text-blue-600"}>const</span>{" "}
-                <span className={isDarkMode ? "text-slate-200" : "text-slate-800"}>aniket</span>{" "}
-                <span className={isDarkMode ? "text-slate-500" : "text-slate-400"}>=</span>{" "}
-                <span className={isDarkMode ? "text-slate-500" : "text-slate-400"}>{"{"}</span>
-              </div>
-              <div className="pl-4">
-                <span className={isDarkMode ? "text-indigo-400" : "text-indigo-600"}>role:</span>{" "}
-                <span className={isDarkMode ? "text-emerald-400" : "text-emerald-600"}>"Full-Stack Developer"</span>,
-              </div>
-              <div className="pl-4">
-                <span className={isDarkMode ? "text-indigo-400" : "text-indigo-600"}>focus:</span>{" "}
-                <span className={isDarkMode ? "text-emerald-400" : "text-emerald-600"}>"Web & Mobile Apps"</span>,
-              </div>
-              <div className="pl-4">
-                <span className={isDarkMode ? "text-indigo-400" : "text-indigo-600"}>passion:</span>{" "}
-                <span className={isDarkMode ? "text-emerald-400" : "text-emerald-600"}>"Clean Code & UI"</span>,
-              </div>
-              <div className="pl-4">
-                <span className={isDarkMode ? "text-indigo-400" : "text-indigo-600"}>status:</span>{" "}
-                <span className={isDarkMode ? "text-amber-400" : "text-amber-600"}>"Building Great Software"</span>
-              </div>
-              <div>
-                <span className={isDarkMode ? "text-slate-500" : "text-slate-400"}>{"}"}</span>;
-              </div>
-            </div>
-
-            <motion.span
-              animate={{ opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-2 -right-2 w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
-            />
-          </motion.div>
-
           {/* Dotted Grid */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.2, delay: 0.8 }}
-            className="absolute right-8 top-[140px]"
+          <div
+            className="hero-dot-grid absolute right-8 top-[140px]"
           >
             <svg
               width={cols * 22}
@@ -518,27 +694,22 @@ const HeroSection = () => {
                 </radialGradient>
               </defs>
               {dots.map((d) => (
-                <motion.circle
+                <circle
                   key={d.key}
                   cx={d.x + 3}
                   cy={d.y + 3}
                   r="1.5"
                   fill={isDarkMode ? "#475569" : "#cbd5e1"}
-                  initial={{ opacity: 0.2 }}
-                  animate={{ opacity: [0.2, 0.6, 0.2] }}
-                  transition={{
-                    duration: 3 + Math.random() * 2,
-                    repeat: Infinity,
-                    delay: Math.random() * 2,
-                  }}
+                  opacity={0.35}
                 />
               ))}
             </svg>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
 };
 
 export default HeroSection;
+
